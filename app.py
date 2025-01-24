@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import json
 
-# Configure the app
+# Configure the app with branding
 st.set_page_config(page_title="Fantasy Sportsbook", layout="wide")
 
 # Custom styling for sportsbook look
@@ -12,6 +12,7 @@ st.markdown(
     body {
         background-color: #0b1a33;
         color: #ffffff;
+        font-family: Arial, sans-serif;
     }
     .sidebar .sidebar-content {
         background-color: #1b2a49;
@@ -21,11 +22,16 @@ st.markdown(
         color: black;
         font-size: 16px;
         font-weight: bold;
+        border-radius: 10px;
+        padding: 10px;
     }
     .stTable {
         border: 1px solid #ffffff;
         border-radius: 10px;
         overflow: hidden;
+    }
+    h1, h2, h3 {
+        color: #ffcc00;
     }
     </style>
     """,
@@ -33,18 +39,19 @@ st.markdown(
 )
 
 # Sidebar Navigation
+st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/1/12/Fantasy_Football_Logo.png", use_column_width=True)
 st.sidebar.title("📌 Navigation")
 page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "Bet Slip", "H2H Matchup"])
 
-# Initialize session state for bet slip
+# Initialize session state for bet slip and fantasy matchup
 if "bet_slip" not in st.session_state:
     st.session_state.bet_slip = []
-
 if "fantasy_matchup" not in st.session_state:
     st.session_state.fantasy_matchup = None
 
 # Home Page
 if page == "Home":
+    st.image("https://upload.wikimedia.org/wikipedia/commons/5/5b/Sports_Betting_Image.jpg", use_column_width=True)
     st.title("🚀 Fantasy-Integrated Sports Betting Platform")
     st.write("Welcome to the next-generation sportsbook where you can bet based on your fantasy league performances!")
 
@@ -104,11 +111,15 @@ elif page == "Bet Slip":
     if len(st.session_state.bet_slip) == 0:
         st.write("No bets added yet. Go to the **Home** page to add bets.")
     else:
+        st.write("### Your Selected Bets")
         for bet in st.session_state.bet_slip:
             st.write(f"✅ {bet}")
+        st.write("---")
+        bet_amount = st.number_input("Enter Bet Amount ($):", min_value=1, value=10)
+        if st.button("Calculate Potential Payout"):
+            st.success(f"Your potential payout: **${bet_amount * 2}** (Mock Calculation)")
         if st.button("Clear Bet Slip"):
             st.session_state.bet_slip = []
             st.success("Bet slip cleared!")
 
 st.sidebar.write("🔹 More features coming soon, including real-time odds and fantasy team syncing!")
-
