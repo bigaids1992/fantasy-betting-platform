@@ -41,7 +41,6 @@ if matchup_file is not None:
         matchup_json = json.load(matchup_file)
         if "team_1" in matchup_json and "players" in matchup_json:
             st.session_state.matchup_data = matchup_json
-            st.session_state.bet_slip = []  # Clear bet slip when new data is uploaded
             st.session_state.live_updates = []  # Reset live updates
             st.session_state.matchup_updates = []  # Reset matchup updates
             st.sidebar.success("Fantasy Matchup File Uploaded Successfully!")
@@ -112,30 +111,12 @@ if page == "Bet Slip":
         for bet in st.session_state.bet_slip:
             st.write(f"✅ {bet}")
 
-# Live Tracker - Generate Live Events
-if page == "Live Tracker":
-    st.title("📡 Live Fantasy Tracker")
-    st.write("Real-time player updates appear here!")
-    
-    players = [player["Player"] for player in st.session_state.get("matchup_data", {}).get("players", [])]
-    events = [
-        "scores a touchdown!",
-        "rushes for 10 yards!",
-        "throws a deep pass!",
-        "makes a spectacular catch!",
-        "breaks a tackle for a huge gain!"
-    ]
-    
-    if st.button("Generate Live Update"):
-        if players:
-            update = f"{random.choice(players)} {random.choice(events)}"
-            st.session_state.live_updates.insert(0, update)
-        else:
-            update = "Waiting for matchup data..."
-            st.session_state.live_updates.insert(0, update)
-    
-    st.write("### Latest Updates:")
-    for update in st.session_state.live_updates[:10]:
-        st.write(f"- {update}")
-
-    st.button("Go to Live Tracker", on_click=lambda: st.switch_page("Live Tracker"))
+# Fantasy League Page - Display Matchup Data
+if page == "Fantasy League":
+    st.title("📥 Fantasy League Matchup Details")
+    matchup_data = st.session_state.get("matchup_data", {})
+    if matchup_data and "players" in matchup_data:
+        st.header(f"🏈 {matchup_data['team_1']} vs {matchup_data['team_2']}")
+        st.subheader(f"Projected Score: {matchup_data['team_1_score']} - {matchup_data['team_2_score']}")
+        for player in matchup_data["players"]:
+            st.write(f"**{player['Player']} ({player['Position']})** - Fantasy Points: {player['Fantasy Points']}")
