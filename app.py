@@ -87,6 +87,7 @@ if page == "Home":
         with col3:
             if st.button(f"Bet on {player}", key=f"bet_{player}"):
                 st.session_state.bet_slip.append(f"{player} ({odds})")
+                st.session_state.live_bets.append(f"{player} ({odds})")
                 st.rerun()
 
 # Fantasy League Page - Hardcoded Matchup
@@ -113,3 +114,17 @@ if page == "Fantasy League":
     st.write("- **Key Players:** Josh Allen vs. Patrick Mahomes")
     st.write("- **Running Back Battle:** Saquon Barkley vs. Nick Chubb")
     st.write("- **Wide Receiver Stars:** Cooper Kupp vs. Ja'Marr Chase")
+
+# Live Tracker Page - Live Updates Sync
+if page == "Live Tracker":
+    st.title("📡 Live Fantasy Tracker")
+    players = list(fantasy_scores.keys())
+    events = ["scores a touchdown!", "rushes for 10 yards!", "throws a deep pass!", "makes a spectacular catch!", "breaks a tackle for a huge gain!"]
+    
+    if st.button("Generate Live Update"):
+        update = f"{random.choice(players)} {random.choice(events)}"
+        st.session_state.live_updates.insert(0, update)
+    
+    st.write("### Latest Updates:")
+    for update in st.session_state.live_updates[:10]:
+        st.write(f"- {update}")
