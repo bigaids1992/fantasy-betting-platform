@@ -63,6 +63,11 @@ def get_player_image(player_name):
     }
     return image_urls.get(player_name, "https://via.placeholder.com/75?text=?")
 
+# Home Page
+if page == "Home":
+    st.image("https://i.imgur.com/STUXtV3.png", width=250)  # Display logo prominently
+    st.title("Fantasy Champions Sportsbook")
+
 # Fantasy League Page - Side by Side Matchup with Play-by-Play Updates
 elif page == "Fantasy League":
     st.title("📥 Fantasy League Matchup Details")
