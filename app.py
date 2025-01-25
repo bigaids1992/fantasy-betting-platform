@@ -38,8 +38,12 @@ if "matchup_updates" not in st.session_state:
 matchup_file = st.sidebar.file_uploader("Upload Fantasy Matchup JSON File", type=["json"])
 if matchup_file is not None:
     try:
-        st.session_state.matchup_data = json.load(matchup_file)
-        st.sidebar.success("Fantasy Matchup File Uploaded Successfully!")
+        matchup_json = json.load(matchup_file)
+        if "team_1" in matchup_json and "players" in matchup_json:
+            st.session_state.matchup_data = matchup_json
+            st.sidebar.success("Fantasy Matchup File Uploaded Successfully!")
+        else:
+            st.sidebar.error("Invalid JSON structure. Please upload a valid matchup file.")
     except Exception as e:
         st.sidebar.error(f"Error processing JSON file: {e}")
 
@@ -92,4 +96,4 @@ if page == "Home":
                         st.sidebar.success(f"Added {player['Player']} - {player['Projected Prop']} to Bet Slip!")
                 st.markdown("---")
     with col2:
-        st.video("https://www.youtube.com/embed/kYhSZTAWvcg")  # Updated YouTube video URL
+        st.video("https://www.youtube.com/embed/3qieRrwAT2c")  # Updated YouTube video URL
