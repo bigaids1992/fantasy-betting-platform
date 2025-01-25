@@ -27,8 +27,6 @@ page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "Bet Slip", "Live Tr
 # Initialize session state for bet slip, matchup data, and live tracker
 if "bet_slip" not in st.session_state:
     st.session_state.bet_slip = []
-if "home_data" not in st.session_state:
-    st.session_state.home_data = {}
 if "matchup_data" not in st.session_state:
     st.session_state.matchup_data = {}
 if "live_updates" not in st.session_state:
@@ -42,10 +40,7 @@ if matchup_file is not None:
     try:
         matchup_json = json.load(matchup_file)
         if "team_1" in matchup_json and "players" in matchup_json:
-            st.session_state.matchup_data = matchup_json  # Matchup Page Only
-            st.session_state.home_data = matchup_json  # Home Page Only
-            st.session_state.live_updates = []  # Reset live updates
-            st.session_state.matchup_updates = []  # Reset matchup updates
+            st.session_state.matchup_data = matchup_json  # Store full matchup data
             st.sidebar.success("Fantasy Matchup File Uploaded Successfully!")
         else:
             st.sidebar.error("Invalid JSON structure. Please upload a valid matchup file.")
@@ -72,19 +67,19 @@ def get_player_image(player_name):
     }
     return image_urls.get(player_name, "https://via.placeholder.com/75?text=?")
 
-# Home Page - Display Bets Independently from Matchup Data
+# Home Page - Pulls from Matchup Data
 if page == "Home":
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.image("https://i.imgur.com/STUXtV3.png", width=250)  # Display logo prominently
+        st.image("https://i.imgur.com/STUXtV3.png", width=250)
         st.title("Fantasy Champions Sportsbook")
-        home_data = st.session_state.get("home_data", {})
-        if home_data and "players" in home_data:
-            st.header(f"🏈 {home_data['team_1']} vs {home_data['team_2']}")
-            st.subheader(f"Projected Score: {home_data['team_1_score']} - {home_data['team_2_score']}")
+        if "matchup_data" in st.session_state and "players" in st.session_state.matchup_data:
+            matchup_data = st.session_state.matchup_data
+            st.header(f"🏈 {matchup_data['team_1']} vs {matchup_data['team_2']}")
+            st.subheader(f"Projected Score: {matchup_data['team_1_score']} - {matchup_data['team_2_score']}")
             
             st.header("🎯 Fantasy Player Props & Betting Odds")
-            for player in home_data["players"]:
+            for player in matchup_data["players"]:
                 col1_inner, col2_inner, col3, col4, col5 = st.columns([1, 2, 2, 1, 1])
                 with col1_inner:
                     img_url = get_player_image(player['Player'])
@@ -98,13 +93,12 @@ if page == "Home":
                 with col5:
                     if st.button(f"Bet: {player['Projected Prop']}", key=f"bet_{player['Player']}"):
                         st.session_state.bet_slip.append(f"{player['Player']} - {player['Projected Prop']} ({player['Odds']})")
-                        st.rerun()
                         st.success(f"Added {player['Player']} - {player['Projected Prop']} to Bet Slip!")
                 st.markdown("---")
     with col2:
-        st.video("https://www.youtube.com/embed/3qieRrwAT2c")  # Restored YouTube video
+        st.video("https://www.youtube.com/embed/3qieRrwAT2c")
 
-# Bet Slip Page - Display Selected Bets
+# Bet Slip Page - Pulls from Home Page Bets
 if page == "Bet Slip":
     st.title("📌 Your Bet Slip")
     if len(st.session_state.bet_slip) == 0:
@@ -113,3 +107,26 @@ if page == "Bet Slip":
         st.write("### Your Selected Bets")
         for bet in st.session_state.bet_slip:
             st.write(f"✅ {bet}")
+
+# Live Tracker - Restore Updates
+if page == "Live Tracker":
+    st.title("📡 Live Fantasy Tracker")
+    st.write("Real-time player updates appear here!")
+    
+    players = [player["Player"] for player in st.session_state.get("matchup_data", {}).get("players", [])]
+    events = [
+        "scores a touchdown!",
+        "rushes for 10 yards!",
+        "throws a deep pass!",
+        "makes a spectacular catch!",
+        "breaks a tackle for a huge gain!"
+    ]
+    
+    if st.button("Generate Live Update"):
+        if players:
+            update = f"{random.choice(players)} {random.choice(events)}"
+            st.session_state.live_updates.insert(0, update)
+    
+    st.write("### Latest Updates:")
+    for update in st.session_state.live_updates[:10]:
+        st.write(f"- {update}")
