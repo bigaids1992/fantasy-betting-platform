@@ -30,6 +30,13 @@ def get_player_image(player_name):
     }
     return image_urls.get(player_name, "https://via.placeholder.com/100?text=?")
 
+# Fantasy Scores
+fantasy_scores = {
+    "Josh Allen": 30.5, "Patrick Mahomes": 32.5, "Saquon Barkley": 22.3, "Nick Chubb": 21.4,
+    "Aaron Jones": 19.8, "Alvin Kamara": 20.1, "Cooper Kupp": 24.2, "J Chase": 22.7,
+    "Courtland Sutton": 17.5, "Justin Jefferson": 26.8, "Travis Kelce": 25.6, "Mark Andrews": 18.9
+}
+
 # Home Page - Predetermined Bets
 if page == "Home":
     st.title("Fantasy Champions Sportsbook")
@@ -66,48 +73,17 @@ if page == "Fantasy League":
         col1, col2, col3 = st.columns([3, 1, 3])
         with col1:
             st.image(get_player_image(player1), width=100)
-            st.write(f"**{player1}**")
+            st.write(f"**{player1}** - Fantasy Points: {fantasy_scores.get(player1, 'N/A')}")
         with col2:
             st.write("VS")
         with col3:
             st.image(get_player_image(player2), width=100)
-            st.write(f"**{player2}**")
-
-# Bet Slip Page
-if page == "Bet Slip":
-    st.title("📌 Your Bet Slip")
-    if "bet_slip" not in st.session_state:
-        st.session_state.bet_slip = []
-    
-    if not st.session_state.bet_slip:
-        st.write("No bets added yet. Go to the **Home** page to add bets.")
-    else:
-        for bet in st.session_state.bet_slip:
-            col1, col2 = st.columns([4, 1])
-            with col1:
-                st.write(f"✅ {bet[0]} - Odds: {bet[1]}")
-            with col2:
-                if st.button("Place Bet", key=f"place_{bet[0]}"):
-                    st.session_state.live_bets.append(bet)
-                    st.session_state.bet_slip.remove(bet)
-                    st.rerun()
-
-# My Bets Page
-if page == "My Bets":
-    st.title("📌 My Active Bets")
-    if "live_bets" not in st.session_state:
-        st.session_state.live_bets = []
-    
-    if not st.session_state.live_bets:
-        st.write("No active bets at the moment.")
-    else:
-        for bet in st.session_state.live_bets:
-            st.write(f"✅ {bet[0]} - Odds: {bet[1]}")
+            st.write(f"**{player2}** - Fantasy Points: {fantasy_scores.get(player2, 'N/A')}")
 
 # Live Tracker Page
 if page == "Live Tracker":
     st.title("📡 Live Fantasy Tracker")
-    players = list(get_player_image.keys())
+    players = list(fantasy_scores.keys())
     events = ["scores a touchdown!", "rushes for 10 yards!", "throws a deep pass!", "makes a spectacular catch!", "breaks a tackle for a huge gain!"]
     
     if "live_updates" not in st.session_state:
