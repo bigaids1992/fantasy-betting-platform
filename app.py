@@ -108,3 +108,8 @@ if page == "Fantasy League":
         with col3:
             st.image(get_player_image(player2), width=100)
             st.write(f"**{player2}** - Fantasy Points: {fantasy_scores[player2]}")
+    
+    st.write("### Matchup Summary")
+    st.write("- **Key Players:** Josh Allen vs. Patrick Mahomes")
+    st.write("- **Running Back Battle:** Saquon Barkley vs. Nick Chubb")
+    st.write("- **Wide Receiver Stars:** Cooper Kupp vs. Ja'Marr Chase")
