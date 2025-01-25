@@ -39,25 +39,34 @@ if "bet_odds" not in st.session_state:
 if "live_bets" not in st.session_state:
     st.session_state.live_bets = []
 
-# Function to get player images for Fantasy League Page
+# Function to get player images
 def get_player_image(player_name):
     image_urls = {
-        "Josh Allen": "https://i.imgur.com/Qwe9GQL.png",
+        "Josh Allen": "https://i.imgur.com/rvb81LJ.png",
         "Patrick Mahomes": "https://i.imgur.com/D2mfI4c.png",
         "Saquon Barkley": "https://i.imgur.com/DEtck1l.png",
-        "Nick Chubb": "https://i.imgur.com/9r5Jy24.png",
-        "Aaron Jones": "https://i.imgur.com/Z0aXH78.png",
-        "Alvin Kamara": "https://i.imgur.com/FJwXv23.png",
-        "Cooper Kupp": "https://i.imgur.com/ks8R1Pq.png",
-        "Ja'Marr Chase": "https://i.imgur.com/BG7Fy5T.png",
-        "Courtland Sutton": "https://i.imgur.com/LpHgD5U.png",
-        "Justin Jefferson": "https://i.imgur.com/MqNsEVh.png",
-        "Travis Kelce": "https://i.imgur.com/QYHkLZ9.png",
-        "Mark Andrews": "https://i.imgur.com/TpMtxRd.png"
+        "Nick Chubb": "https://i.imgur.com/9r5Jy24.png"
     }
-    return image_urls.get(player_name, "https://via.placeholder.com/100?text=?")
+    return image_urls.get(player_name, "https://via.placeholder.com/75?text=?")
 
-# Fantasy League Page - Hardcoded Matchup with Images
+# Home Page - Predetermined Bets
+if page == "Home":
+    st.title("Fantasy Champions Sportsbook")
+    st.button("Sync League")  # Placeholder
+    
+    st.header("🎯 Predetermined Betting Options")
+    for player, odds in st.session_state.bet_odds.items():
+        col1, col2, col3 = st.columns([2, 2, 1])
+        with col1:
+            st.image(get_player_image(player), width=75)
+        with col2:
+            st.write(f"**{player}** - Odds: {odds}")
+        with col3:
+            if st.button(f"Bet on {player}", key=f"bet_{player}"):
+                st.session_state.bet_slip.append(f"{player} ({odds})")
+                st.rerun()
+
+# Fantasy League Page - Hardcoded Matchup
 if page == "Fantasy League":
     st.title("📥 Fantasy League Matchup Details")
     st.button("Sync League")  # Placeholder Button
@@ -78,3 +87,48 @@ if page == "Fantasy League":
             if i + 1 < len(players):
                 st.image(get_player_image(players[i + 1]), width=100)
                 st.write(f"**{players[i + 1]}** - Fantasy Points: {st.session_state.fantasy_scores[players[i + 1]]}")
+
+# My Bets Page - Active Bets
+if page == "My Bets":
+    st.title("📌 My Active Bets")
+    if len(st.session_state.live_bets) == 0:
+        st.write("No active bets at the moment.")
+    else:
+        for bet in st.session_state.live_bets:
+            st.write(f"✅ {bet}")
+
+# Bet Slip Page - Display Bets from Home Page with Transfer to My Bets
+if page == "Bet Slip":
+    st.title("📌 Your Bet Slip")
+    if len(st.session_state.bet_slip) == 0:
+        st.write("No bets added yet. Go to the **Home** page to add bets.")
+    else:
+        for bet in st.session_state.bet_slip:
+            col1, col2 = st.columns([4, 1])
+            with col1:
+                st.write(f"✅ {bet}")
+            with col2:
+                if st.button("Move to My Bets", key=f"move_{bet}"):
+                    st.session_state.live_bets.append(bet)
+                    st.session_state.bet_slip.remove(bet)
+                    st.rerun()
+        
+        st.write("---")
+        bet_amount = st.number_input("Enter Bet Amount ($):", min_value=1, value=10)
+        potential_payout = bet_amount * 2  # Mock Calculation
+        if st.button("Calculate Payout"):
+            st.success(f"Your potential payout: **${potential_payout:.2f}**")
+
+# Live Tracker Page - Updates Automatically
+if page == "Live Tracker":
+    st.title("📡 Live Fantasy Tracker")
+    players = list(st.session_state.fantasy_scores.keys())
+    events = ["scores a touchdown!", "rushes for 10 yards!", "throws a deep pass!", "makes a spectacular catch!", "breaks a tackle for a huge gain!"]
+    
+    if st.button("Generate Live Update"):
+        update = f"{random.choice(players)} {random.choice(events)}"
+        st.session_state.live_updates.insert(0, update)
+    
+    st.write("### Latest Updates:")
+    for update in st.session_state.live_updates[:10]:
+        st.write(f"- {update}")
