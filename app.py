@@ -42,6 +42,12 @@ if image_files:
             f.write(image.getbuffer())
     st.sidebar.success("Images Uploaded Successfully!")
 
+# Debug: List uploaded files
+uploaded_files = os.listdir("/mnt/data/")
+st.sidebar.write("### Uploaded Files:")
+for file in uploaded_files:
+    st.sidebar.write(file)
+
 # Function to find the player's image file
 def get_player_image(player_name):
     formatted_name = player_name.replace(" ", "_")
@@ -49,7 +55,7 @@ def get_player_image(player_name):
         file_path = f"/mnt/data/{formatted_name}.{ext}"
         if os.path.exists(file_path):
             return file_path
-    return None  # No image found
+    return "https://via.placeholder.com/75?text=?"  # Placeholder image for missing files
 
 # Home Page
 if page == "Home":
@@ -63,8 +69,7 @@ if page == "Home":
         col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 1, 1])
         with col1:
             img_path = get_player_image(player['Player'])
-            if img_path:
-                st.image(img_path, width=75)
+            st.image(img_path, width=75)
         with col2:
             st.write(f"**{player['Player']}**")
         with col3:
@@ -78,26 +83,6 @@ if page == "Home":
                 st.session_state.bet_slip.append(f"{player['Player']} - {player['Projected Prop']} ({player['Odds']})")
                 st.success(f"Added {player['Player']} - {player['Projected Prop']} to Bet Slip!")
         st.markdown("---")
-
-# Bet Slip Page
-elif page == "Bet Slip":
-    st.title("📌 Your Bet Slip")
-    if "bet_slip" not in st.session_state:
-        st.session_state.bet_slip = []
-    
-    if len(st.session_state.bet_slip) == 0:
-        st.write("No bets added yet. Go to the **Home** page to add bets.")
-    else:
-        st.write("### Your Selected Bets")
-        for bet in st.session_state.bet_slip:
-            st.write(f"✅ {bet}")
-        st.write("---")
-        bet_amount = st.number_input("Enter Bet Amount ($):", min_value=1, value=10)
-        if st.button("Calculate Potential Payout"):
-            st.success(f"Your potential payout: **${bet_amount * 2}** (Mock Calculation)")
-        if st.button("Clear Bet Slip"):
-            st.session_state.bet_slip = []
-            st.success("Bet slip cleared!")
 
 # Fantasy League Page
 elif page == "Fantasy League":
