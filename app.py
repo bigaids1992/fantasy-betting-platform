@@ -25,6 +25,16 @@ page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "Bet Slip", "Live Tr
 if "bet_slip" not in st.session_state:
     st.session_state.bet_slip = []
 
+# Function to get player images
+def get_player_image(player_name):
+    image_urls = {
+        "Josh Allen": "https://i.imgur.com/rvb81LJ.png",
+        "Patrick Mahomes": "https://i.imgur.com/D2mfI4c.png",
+        "Saquon Barkley": "https://i.imgur.com/DEtck1l.png",
+        "Nick Chubb": "https://i.imgur.com/9r5Jy24.png"
+    }
+    return image_urls.get(player_name, "https://via.placeholder.com/75?text=?")
+
 # Home Page - Predetermined Bets
 if page == "Home":
     col1, col2 = st.columns([3, 2])
@@ -44,16 +54,17 @@ if page == "Home":
         ]
         
         for bet in bets:
-            col1_inner, col2_inner, col3 = st.columns([2, 2, 1])
+            col1_inner, col2_inner, col3, col4 = st.columns([1, 2, 2, 1])
             with col1_inner:
-                st.write(f"**{bet['Player']}**")
+                st.image(get_player_image(bet['Player']), width=75)
             with col2_inner:
-                st.write(f"💰 {bet['Odds']}")
+                st.write(f"**{bet['Player']}**")
             with col3:
+                st.write(f"💰 {bet['Odds']}")
+            with col4:
                 if st.button(f"Bet: {bet['Prop']}", key=f"bet_{bet['Player']}"):
                     st.session_state.bet_slip.append(f"{bet['Player']} - {bet['Prop']} ({bet['Odds']})")
-                    st.experimental_rerun()
-                    st.success(f"Added {bet['Player']} - {bet['Prop']} to Bet Slip!")
+                    st.rerun()
             st.markdown("---")
     with col2:
         st.video("https://www.youtube.com/embed/3qieRrwAT2c", start_time=0)
@@ -70,19 +81,17 @@ if page == "Fantasy League":
     players = [
         ("Josh Allen", "QB", "30.5", "Patrick Mahomes", "QB", "32.5"),
         ("Saquon Barkley", "RB", "22.3", "Nick Chubb", "RB", "21.4"),
-        ("Aaron Jones", "RB", "19.8", "Alvin Kamara", "RB", "20.1"),
-        ("Cooper Kupp", "WR", "24.2", "J Chase", "WR", "22.7"),
-        ("Courtland Sutton", "WR", "17.5", "Justin Jefferson", "WR", "26.8"),
-        ("Travis Kelce", "TE", "25.6", "Mark Andrews", "TE", "18.9")
     ]
     
     for p1, pos1, pts1, p2, pos2, pts2 in players:
         col1, col2, col3 = st.columns([3, 1, 3])
         with col1:
+            st.image(get_player_image(p1), width=100)
             st.write(f"**{p1} ({pos1})** - {pts1} Pts")
         with col2:
             st.write("VS")
         with col3:
+            st.image(get_player_image(p2), width=100)
             st.write(f"**{p2} ({pos2})** - {pts2} Pts")
 
 # Bet Slip Page - Display Bets from Home Page
@@ -103,7 +112,7 @@ if page == "Live Tracker":
     if "live_updates" not in st.session_state:
         st.session_state.live_updates = []
     
-    players = ["Josh Allen", "Patrick Mahomes", "Saquon Barkley", "Nick Chubb", "Cooper Kupp", "Justin Jefferson"]
+    players = ["Josh Allen", "Patrick Mahomes", "Saquon Barkley", "Nick Chubb"]
     events = [
         "scores a touchdown!",
         "rushes for 10 yards!",
