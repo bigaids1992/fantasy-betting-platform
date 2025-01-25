@@ -67,22 +67,40 @@ if page == "Home":
                 st.session_state.bet_slip.append((player, odds))
                 st.rerun()
 
-# Bet Slip Page with Calculator
+# Fantasy League Page - Hardcoded Matchup
+if page == "Fantasy League":
+    st.title("📥 Fantasy League Matchup")
+    st.button("Sync League")
+    
+    st.header("🏈 Matchup Lineup")
+    matchups = [
+        ("Josh Allen", "Patrick Mahomes"), ("Saquon Barkley", "Nick Chubb"), ("Aaron Jones", "Alvin Kamara"),
+        ("Cooper Kupp", "J Chase"), ("Courtland Sutton", "Justin Jefferson"), ("Travis Kelce", "Mark Andrews")
+    ]
+    for player1, player2 in matchups:
+        col1, col2, col3 = st.columns([3, 1, 3])
+        with col1:
+            st.image(get_player_image(player1), width=100)
+            st.write(f"**{player1}** - Fantasy Points: {fantasy_scores.get(player1, 'N/A')}")
+        with col2:
+            st.write("VS")
+        with col3:
+            st.image(get_player_image(player2), width=100)
+            st.write(f"**{player2}** - Fantasy Points: {fantasy_scores.get(player2, 'N/A')}")
+
+# Bet Slip Page
 if page == "Bet Slip":
     st.title("📌 Your Bet Slip")
     if not st.session_state.bet_slip:
         st.write("No bets added yet. Go to the **Home** page to add bets.")
     else:
         for bet in st.session_state.bet_slip:
-            col1, col2, col3 = st.columns([4, 2, 2])
+            col1, col2 = st.columns([4, 1])
             with col1:
                 st.write(f"✅ {bet[0]} - Odds: {bet[1]}")
             with col2:
-                stake = st.number_input(f"Stake for {bet[0]}", min_value=1, value=10, key=f"stake_{bet[0]}")
-            with col3:
                 if st.button("Place Bet", key=f"place_{bet[0]}"):
-                    potential_payout = stake * (int(bet[1]) / 100) if int(bet[1]) > 0 else stake * (100 / abs(int(bet[1])))
-                    st.session_state.live_bets.append((bet[0], bet[1], stake, round(potential_payout, 2)))
+                    st.session_state.live_bets.append(bet)
                     st.session_state.bet_slip.remove(bet)
                     st.rerun()
 
@@ -93,18 +111,4 @@ if page == "My Bets":
         st.write("No active bets at the moment.")
     else:
         for bet in st.session_state.live_bets:
-            st.write(f"✅ {bet[0]} - Odds: {bet[1]} - Stake: ${bet[2]} - Potential Payout: ${bet[3]}")
-
-# Live Tracker Page
-if page == "Live Tracker":
-    st.title("📡 Live Fantasy Tracker")
-    players = list(fantasy_scores.keys())
-    events = ["scores a touchdown!", "rushes for 10 yards!", "throws a deep pass!", "makes a spectacular catch!", "breaks a tackle for a huge gain!"]
-    
-    if st.button("Generate Live Update"):
-        update = f"{random.choice(players)} {random.choice(events)}"
-        st.session_state.live_updates.insert(0, update)
-    
-    st.write("### Latest Updates:")
-    for update in st.session_state.live_updates[:10]:
-        st.write(f"- {update}")
+            st.write(f"✅ {bet[0]} - Odds: {bet[1]}")
