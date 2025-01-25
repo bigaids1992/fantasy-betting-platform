@@ -9,6 +9,9 @@ st.set_page_config(page_title="Fantasy Champions Sportsbook", layout="wide")
 # Define JSON file path
 json_file_path = "/mnt/data/fantasy_matchup_upload.json"
 
+# Define logo file path
+logo_file_path = "/mnt/data/IMG_9766-remove-background.com.png"
+
 # Check if the JSON file exists, else use default data
 if os.path.exists(json_file_path):
     with open(json_file_path, "r") as f:
@@ -50,8 +53,17 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Display Logo
-st.image("/mnt/data/IMG_9766-remove-background.com.png", width=300)
+# Display Logo (Use fallback if missing)
+if os.path.exists(logo_file_path):
+    st.image(logo_file_path, width=300)
+else:
+    st.warning("Logo file missing! Please upload the logo using the uploader below.")
+    logo_upload = st.file_uploader("Upload Fantasy Champions Logo", type=["png", "jpg", "jpeg"])
+    if logo_upload is not None:
+        logo_temp_path = f"/mnt/data/{logo_upload.name}"
+        with open(logo_temp_path, "wb") as f:
+            f.write(logo_upload.getbuffer())
+        st.image(logo_temp_path, width=300)
 
 # Title
 st.title("Fantasy Champions Sportsbook")
