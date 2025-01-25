@@ -32,6 +32,25 @@ else:
         ]
     }
 
+# Image Upload Section
+st.sidebar.header("Upload Player Images")
+image_files = st.sidebar.file_uploader("Upload Player Images (PNG, JPG, JPEG)", accept_multiple_files=True, type=["png", "jpg", "jpeg"])
+if image_files:
+    for image in image_files:
+        file_path = f"/mnt/data/{image.name}"
+        with open(file_path, "wb") as f:
+            f.write(image.getbuffer())
+    st.sidebar.success("Images Uploaded Successfully!")
+
+# Function to find the player's image file
+def get_player_image(player_name):
+    formatted_name = player_name.replace(" ", "_")
+    for ext in ["png", "jpg", "jpeg"]:
+        file_path = f"/mnt/data/{formatted_name}.{ext}"
+        if os.path.exists(file_path):
+            return file_path
+    return None  # No image found
+
 # Home Page
 if page == "Home":
     st.title("Fantasy Champions Sportsbook")
@@ -41,14 +60,18 @@ if page == "Home":
     st.header("🎯 Fantasy Player Props & Betting Odds")
     
     for player in matchup_data["players"]:
-        col1, col2, col3, col4 = st.columns([2, 2, 1, 1])
+        col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 1, 1])
         with col1:
-            st.write(f"**{player['Player']}**")
+            img_path = get_player_image(player['Player'])
+            if img_path:
+                st.image(img_path, width=75)
         with col2:
-            st.write(f"📊 Fantasy Points: {player['Fantasy Points']}")
+            st.write(f"**{player['Player']}**")
         with col3:
-            st.write(f"💰 Odds: {player['Odds']}")
+            st.write(f"📊 Fantasy Points: {player['Fantasy Points']}")
         with col4:
+            st.write(f"💰 Odds: {player['Odds']}")
+        with col5:
             if st.button(f"Bet: {player['Projected Prop']}", key=f"bet_{player['Player']}"):
                 if "bet_slip" not in st.session_state:
                     st.session_state.bet_slip = []
