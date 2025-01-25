@@ -23,7 +23,7 @@ st.sidebar.title("📌 Navigation")
 st.sidebar.write("💰 **Balance: $1,000.00**")
 page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "My Bets", "Bet Slip", "Live Tracker"])
 
-# Initialize session state variables if they don't exist
+# Initialize session state variables
 if "bet_slip" not in st.session_state:
     st.session_state.bet_slip = []
 if "live_updates" not in st.session_state:
@@ -35,11 +35,7 @@ if "fantasy_scores" not in st.session_state:
         "Courtland Sutton": 17.5, "Justin Jefferson": 26.8, "Travis Kelce": 25.6, "Mark Andrews": 18.9
     }
 if "bet_odds" not in st.session_state:
-    st.session_state.bet_odds = {
-        "Josh Allen": 150, "Patrick Mahomes": 140, "Saquon Barkley": -110, "Nick Chubb": -120,
-        "Aaron Jones": 130, "Alvin Kamara": 115, "Cooper Kupp": 125, "Ja'Marr Chase": 135,
-        "Courtland Sutton": 145, "Justin Jefferson": 160, "Travis Kelce": 175, "Mark Andrews": 180
-    }
+    st.session_state.bet_odds = {"Josh Allen": 150, "Patrick Mahomes": 140, "Saquon Barkley": -110, "Nick Chubb": -120}
 if "live_bets" not in st.session_state:
     st.session_state.live_bets = []
 
@@ -60,47 +56,3 @@ def get_player_image(player_name):
         "Mark Andrews": "https://i.imgur.com/TpMtxRd.png"
     }
     return image_urls.get(player_name, "https://via.placeholder.com/75?text=?")
-
-# My Bets Page - Display Active Bets with Stake, Payout & Cashout
-if page == "My Bets":
-    st.title("📌 My Active Bets")
-    if not st.session_state.live_bets:
-        st.write("No active bets at the moment.")
-    else:
-        for bet in st.session_state.live_bets:
-            col1, col2, col3, col4 = st.columns([3, 2, 2, 1])
-            with col1:
-                st.write(f"✅ {bet}")
-            with col2:
-                stake = 10  # Mock stake amount
-                st.write(f"💸 Stake: ${stake}")
-            with col3:
-                payout = stake * 2  # Mock payout calculation
-                st.write(f"💰 Potential Payout: ${payout}")
-            with col4:
-                if st.button("Cash Out", key=f"cashout_{bet}"):
-                    st.session_state.live_bets.remove(bet)
-                    st.success(f"Cashed out: {bet}")
-                    st.rerun()
-
-# Bet Slip Page - Transfer Bets to My Bets
-if page == "Bet Slip":
-    st.title("📌 Your Bet Slip")
-    if not st.session_state.bet_slip:
-        st.write("No bets added yet. Go to the **Home** page to add bets.")
-    else:
-        for bet in st.session_state.bet_slip:
-            col1, col2 = st.columns([4, 1])
-            with col1:
-                st.write(f"✅ {bet}")
-            with col2:
-                if st.button("Move to My Bets", key=f"move_{bet}"):
-                    st.session_state.live_bets.append(bet)
-                    st.session_state.bet_slip.remove(bet)
-                    st.rerun()
-        
-        st.write("---")
-        bet_amount = st.number_input("Enter Bet Amount ($):", min_value=1, value=10)
-        potential_payout = bet_amount * 2  # Mock Calculation
-        if st.button("Calculate Payout"):
-            st.success(f"Your potential payout: **${potential_payout:.2f}**")
