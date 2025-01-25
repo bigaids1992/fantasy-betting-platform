@@ -31,18 +31,10 @@ matchup_data = {
     "team_1_score": 151.26,
     "team_2_score": 85.46,
     "players": [
-        {"Player": "Josh Allen", "Position": "QB", "Fantasy Points": 30.5},
-        {"Player": "Patrick Mahomes", "Position": "QB", "Fantasy Points": 32.5},
-        {"Player": "Saquon Barkley", "Position": "RB", "Fantasy Points": 22.3},
-        {"Player": "Nick Chubb", "Position": "RB", "Fantasy Points": 21.4},
-        {"Player": "Aaron Jones", "Position": "RB", "Fantasy Points": 19.8},
-        {"Player": "Alvin Kamara", "Position": "RB", "Fantasy Points": 20.1},
-        {"Player": "Cooper Kupp", "Position": "WR", "Fantasy Points": 24.2},
-        {"Player": "J Chase", "Position": "WR", "Fantasy Points": 22.7},
-        {"Player": "Courtland Sutton", "Position": "WR", "Fantasy Points": 17.5},
-        {"Player": "Justin Jefferson", "Position": "WR", "Fantasy Points": 26.8},
-        {"Player": "Travis Kelce", "Position": "TE", "Fantasy Points": 25.6},
-        {"Player": "Mark Andrews", "Position": "TE", "Fantasy Points": 18.9}
+        {"Player": "Josh Allen", "Position": "QB", "Fantasy Points": 30.5, "Projected Prop": "Over 250 Passing Yards", "Odds": "+150"},
+        {"Player": "Patrick Mahomes", "Position": "QB", "Fantasy Points": 32.5, "Projected Prop": "Over 275 Passing Yards", "Odds": "+140"},
+        {"Player": "Saquon Barkley", "Position": "RB", "Fantasy Points": 22.3, "Projected Prop": "Over 80 Rushing Yards", "Odds": "-110"},
+        {"Player": "Nick Chubb", "Position": "RB", "Fantasy Points": 21.4, "Projected Prop": "Over 90 Rushing Yards", "Odds": "-120"}
     ]
 }
 
@@ -50,44 +42,58 @@ matchup_data = {
 def get_player_image(player_name):
     image_urls = {
         "Josh Allen": "https://i.imgur.com/rvb81LJ.png",
+        "Patrick Mahomes": "https://i.imgur.com/D2mfI4c.png",
         "Saquon Barkley": "https://i.imgur.com/DEtck1l.png",
-        "Aaron Jones": "https://i.imgur.com/XjPiGiI.png",
-        "Nick Chubb": "https://i.imgur.com/9r5Jy24.png",
-        "Alvin Kamara": "https://i.imgur.com/wc4NTJa.png",
-        "Courtland Sutton": "https://i.imgur.com/vn2hnCM.png",
-        "Cooper Kupp": "https://i.imgur.com/jnMoGV3.png",
-        "Travis Kelce": "https://i.imgur.com/MwJTFjD.png",
-        "Mark Andrews": "https://i.imgur.com/H4iiyPd.png",
-        "J Chase": "https://i.imgur.com/lnV5QCp.png",
-        "Justin Jefferson": "https://i.imgur.com/ofyGZiM.png",
-        "Patrick Mahomes": "https://i.imgur.com/D2mfI4c.png"
+        "Nick Chubb": "https://i.imgur.com/9r5Jy24.png"
     }
     return image_urls.get(player_name, "https://via.placeholder.com/75?text=?")
 
-# Fantasy League Page - Display Hardcoded Matchup Data
-if page == "Fantasy League":
-    st.title("📥 Fantasy League Matchup Details")
-    st.button("Sync League")  # Placeholder Button
-    
-    st.header(f"🏈 {matchup_data['team_1']} vs {matchup_data['team_2']}")
-    st.subheader(f"Projected Score: {matchup_data['team_1_score']} - {matchup_data['team_2_score']}")
-    
-    st.write("### Head-to-Head Matchup")
-    for i in range(0, len(matchup_data["players"]), 2):
-        col1, col2, col3 = st.columns([3, 1, 3])
-        with col1:
-            player1 = matchup_data["players"][i]
-            st.image(get_player_image(player1['Player']), width=100)
-            st.write(f"**{player1['Player']} ({player1['Position']})**")
-            st.write(f"Fantasy Points: {player1['Fantasy Points']}")
-        with col2:
-            st.write("VS")
-        with col3:
-            if i+1 < len(matchup_data["players"]):
-                player2 = matchup_data["players"][i+1]
-                st.image(get_player_image(player2['Player']), width=100)
-                st.write(f"**{player2['Player']} ({player2['Position']})**")
-                st.write(f"Fantasy Points: {player2['Fantasy Points']}")
+# Home Page - Display Betting Options and Video
+if page == "Home":
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.image("https://i.imgur.com/STUXtV3.png", width=250)
+        st.title("Fantasy Champions Sportsbook")
+        
+        st.header("🎯 Fantasy Player Props & Betting Odds")
+        for player in matchup_data["players"]:
+            col1_inner, col2_inner, col3, col4, col5 = st.columns([1, 2, 2, 1, 1])
+            with col1_inner:
+                img_url = get_player_image(player['Player'])
+                st.image(img_url, width=75)
+            with col2_inner:
+                st.write(f"**{player['Player']}**")
+            with col3:
+                st.write(f"📊 Fantasy Points: {player['Fantasy Points']}")
+            with col4:
+                st.write(f"💰 Odds: {player['Odds']}")
+            with col5:
+                if st.button(f"Bet: {player['Projected Prop']}", key=f"bet_{player['Player']}"):
+                    st.session_state.bet_slip.append(f"{player['Player']} - {player['Projected Prop']} ({player['Odds']})")
+                    st.success(f"Added {player['Player']} - {player['Projected Prop']} to Bet Slip!")
+            st.markdown("---")
+    with col2:
+        st.video("https://www.youtube.com/embed/3qieRrwAT2c")
 
-    st.write("---")
-    st.write("✅ Matchup Data is now **always available**, no upload required!")
+# Live Tracker Page - Generate Live Events
+if page == "Live Tracker":
+    st.title("📡 Live Fantasy Tracker")
+    st.write("Real-time player updates appear here!")
+    
+    players = [player["Player"] for player in matchup_data["players"]]
+    events = [
+        "scores a touchdown!",
+        "rushes for 10 yards!",
+        "throws a deep pass!",
+        "makes a spectacular catch!",
+        "breaks a tackle for a huge gain!"
+    ]
+    
+    if st.button("Generate Live Update"):
+        if players:
+            update = f"{random.choice(players)} {random.choice(events)}"
+            st.session_state.live_updates.insert(0, update)
+    
+    st.write("### Latest Updates:")
+    for update in st.session_state.live_updates[:10]:
+        st.write(f"- {update}")
