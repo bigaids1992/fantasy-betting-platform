@@ -87,7 +87,7 @@ if page == "Home":
         with col3:
             if st.button(f"Bet on {player}", key=f"bet_{player}"):
                 st.session_state.bet_slip.append(f"{player} ({odds})")
-                st.session_state.live_bets.append(f"{player} ({odds})")
+                st.session_state.live_bets.append({"player": player, "odds": odds, "stake": 10, "potential_payout": 10 * 2})
                 st.rerun()
 
 # My Bets Page - Active Bets Display
@@ -97,7 +97,7 @@ if page == "My Bets":
         st.write("No active bets at the moment.")
     else:
         for bet in st.session_state.live_bets:
-            st.write(f"✅ {bet}")
+            st.write(f"✅ {bet['player']} - Odds: {bet['odds']} - Stake: ${bet['stake']} - Potential Payout: ${bet['potential_payout']}")
 
 # Bet Slip Page - Display Bets from Home Page with Transfer to My Bets
 if page == "Bet Slip":
@@ -111,7 +111,7 @@ if page == "Bet Slip":
                 st.write(f"✅ {bet}")
             with col2:
                 if st.button("Move to My Bets", key=f"move_{bet}"):
-                    st.session_state.live_bets.append(bet)
+                    st.session_state.live_bets.append({"player": bet.split(' ')[0], "odds": bet.split(' ')[1], "stake": 10, "potential_payout": 10 * 2})
                     st.session_state.bet_slip.remove(bet)
                     st.rerun()
 
