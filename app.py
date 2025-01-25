@@ -1,19 +1,15 @@
 import streamlit as st
 import pandas as pd
 import json
-from io import BytesIO
-from PIL import Image
 
 # Set page config as the first command
 st.set_page_config(page_title="Fantasy Champions Sportsbook", layout="wide")
 
 # Sidebar Navigation
 st.sidebar.title("📌 Navigation")
-page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "Bet Slip", "Upload Images"])
+page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "Bet Slip"])
 
-# Initialize session state for images and bet slip
-if "player_images" not in st.session_state:
-    st.session_state.player_images = {}
+# Initialize session state for bet slip
 if "bet_slip" not in st.session_state:
     st.session_state.bet_slip = []
 if "matchup_data" not in st.session_state:
@@ -28,23 +24,12 @@ if matchup_file is not None:
     except Exception as e:
         st.sidebar.error(f"Error processing JSON file: {e}")
 
-# Image Upload Section
-st.sidebar.header("Upload Player Images")
-image_files = st.sidebar.file_uploader("Upload Player Images (PNG, JPG, JPEG)", accept_multiple_files=True, type=["png", "jpg", "jpeg"])
-if image_files:
-    for image in image_files:
-        image_name = image.name.replace(" ", "_")
-        st.session_state.player_images[image_name] = Image.open(image)
-    st.sidebar.success("Images Uploaded Successfully!")
-
-# Function to get player image from session state
+# Function to get player image from external hosting
 def get_player_image(player_name):
-    formatted_name = player_name.replace(" ", "_")
-    for ext in ["png", "jpg", "jpeg"]:
-        file_key = f"{formatted_name}.{ext}"
-        if file_key in st.session_state.player_images:
-            return st.session_state.player_images[file_key]
-    return "https://via.placeholder.com/75?text=?"  # Placeholder image for missing files
+    image_urls = {
+        "Josh Allen": "https://imgur.com/a/YcGz2P4"
+    }
+    return image_urls.get(player_name, "https://via.placeholder.com/75?text=?")
 
 # Home Page
 if page == "Home":
@@ -58,11 +43,8 @@ if page == "Home":
         for player in matchup_data.get("players", []):
             col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 1, 1])
             with col1:
-                img_path = get_player_image(player['Player'])
-                if isinstance(img_path, Image.Image):
-                    st.image(img_path, width=75)
-                else:
-                    st.image(img_path, width=75)
+                img_url = get_player_image(player['Player'])
+                st.image(img_url, width=75)
             with col2:
                 st.write(f"**{player['Player']}**")
             with col3:
@@ -104,10 +86,7 @@ elif page == "Fantasy League":
         for player in matchup_data.get("players", []):
             col1, col2 = st.columns([1, 4])
             with col1:
-                img_path = get_player_image(player['Player'])
-                if isinstance(img_path, Image.Image):
-                    st.image(img_path, width=75)
-                else:
-                    st.image(img_path, width=75)
+                img_url = get_player_image(player['Player'])
+                st.image(img_url, width=75)
             with col2:
                 st.write(f"**{player['Player']}** - Fantasy Points: {player['Fantasy Points']}, Prop: {player['Projected Prop']}, Odds: {player['Odds']}")
