@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import json
 
-# Set page config as the first command with background styling
+# Set page config with background styling
 st.set_page_config(page_title="Fantasy Champions Sportsbook", layout="wide")
 
 # Apply background image styling
@@ -40,7 +40,20 @@ if matchup_file is not None:
 # Function to get player image from external hosting
 def get_player_image(player_name):
     image_urls = {
-        "Josh Allen": "https://i.imgur.com/Qwe9GQL.png"
+        "Josh Allen": "https://i.imgur.com/rvb81LJ.png",
+        "Saquon Barkley": "https://i.imgur.com/DEtck1l.png",
+        "Aaron Jones": "https://i.imgur.com/XjPiGiI.png",
+        "Nick Chubb": "https://i.imgur.com/9r5Jy24.png",
+        "Alvin Kamara": "https://i.imgur.com/wc4NTJa.png",
+        "Courtland Sutton": "https://i.imgur.com/vn2hnCM.png",
+        "Cooper Kupp": "https://i.imgur.com/jnMoGV3.png",
+        "Travis Kelce": "https://i.imgur.com/MwJTFjD.png",
+        "Mark Andrews": "https://i.imgur.com/H4iiyPd.png",
+        "J Chase": "https://i.imgur.com/lnV5QCp.png",
+        "Justin Jefferson": "https://i.imgur.com/ofyGZiM.png",
+        "James Cook": "https://i.imgur.com/HOtD9bm.png",
+        "Patrick Mahomes": "https://i.imgur.com/D2mfI4c.png",
+        "Brian Thomas": "https://i.imgur.com/baDCucV.png"
     }
     return image_urls.get(player_name, "https://via.placeholder.com/75?text=?")
 
@@ -50,11 +63,11 @@ if page == "Home":
     st.title("Fantasy Champions Sportsbook")
     matchup_data = st.session_state.get("matchup_data", {})
     if matchup_data:
-        st.header(f"🏈 {matchup_data.get('team_1', 'Team 1')} vs {matchup_data.get('team_2', 'Team 2')}")
-        st.subheader(f"Projected Score: {matchup_data.get('team_1_score', 0)} - {matchup_data.get('team_2_score', 0)}")
+        st.header(f"🏈 {matchup_data['team_1']} vs {matchup_data['team_2']}")
+        st.subheader(f"Projected Score: {matchup_data['team_1_score']} - {matchup_data['team_2_score']}")
         
         st.header("🎯 Fantasy Player Props & Betting Odds")
-        for player in matchup_data.get("players", []):
+        for player in matchup_data["players"]:
             col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 1, 1])
             with col1:
                 img_url = get_player_image(player['Player'])
@@ -95,11 +108,11 @@ elif page == "Fantasy League":
     st.image("https://i.imgur.com/STUXtV3.png", width=150)  # Display logo again
     matchup_data = st.session_state.get("matchup_data", {})
     if matchup_data:
-        st.header(f"🏈 {matchup_data.get('team_1', 'Team 1')} vs {matchup_data.get('team_2', 'Team 2')}")
-        st.subheader(f"Projected Score: {matchup_data.get('team_1_score', 0)} - {matchup_data.get('team_2_score', 0)}")
+        st.header(f"🏈 {matchup_data['team_1']} vs {matchup_data['team_2']}")
+        st.subheader(f"Projected Score: {matchup_data['team_1_score']} - {matchup_data['team_2_score']}")
         st.write("### Player Data")
         
-        for player in matchup_data.get("players", []):
+        for player in matchup_data["players"]:
             col1, col2 = st.columns([1, 4])
             with col1:
                 img_url = get_player_image(player['Player'])
