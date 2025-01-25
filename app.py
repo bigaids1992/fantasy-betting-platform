@@ -27,7 +27,7 @@ if matchup_file is not None:
 # Function to get player image from external hosting
 def get_player_image(player_name):
     image_urls = {
-        "Josh Allen": "https://imgur.com/a/YcGz2P4"
+        "Josh Allen": "https://i.imgur.com/Qwe9GQL.png"
     }
     return image_urls.get(player_name, "https://via.placeholder.com/75?text=?")
 
