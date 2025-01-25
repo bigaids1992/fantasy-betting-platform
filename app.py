@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import json
 from io import BytesIO
+from PIL import Image
 
 # Set page config as the first command
 st.set_page_config(page_title="Fantasy Champions Sportsbook", layout="wide")
@@ -33,7 +34,7 @@ image_files = st.sidebar.file_uploader("Upload Player Images (PNG, JPG, JPEG)", 
 if image_files:
     for image in image_files:
         image_name = image.name.replace(" ", "_")
-        st.session_state.player_images[image_name] = BytesIO(image.read())
+        st.session_state.player_images[image_name] = Image.open(image)
     st.sidebar.success("Images Uploaded Successfully!")
 
 # Function to get player image from session state
@@ -58,7 +59,7 @@ if page == "Home":
             col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 1, 1])
             with col1:
                 img_path = get_player_image(player['Player'])
-                if isinstance(img_path, BytesIO):
+                if isinstance(img_path, Image.Image):
                     st.image(img_path, width=75)
                 else:
                     st.image(img_path, width=75)
@@ -104,7 +105,7 @@ elif page == "Fantasy League":
             col1, col2 = st.columns([1, 4])
             with col1:
                 img_path = get_player_image(player['Player'])
-                if isinstance(img_path, BytesIO):
+                if isinstance(img_path, Image.Image):
                     st.image(img_path, width=75)
                 else:
                     st.image(img_path, width=75)
