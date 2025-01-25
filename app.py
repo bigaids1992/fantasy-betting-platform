@@ -1,11 +1,21 @@
 import streamlit as st
 import pandas as pd
 import json
+import os
 
-# Load the JSON file dynamically
+# Define JSON file path
 json_file_path = "/mnt/data/fantasy_matchup_upload.json"
-with open(json_file_path, "r") as f:
-    matchup_data = json.load(f)
+
+# Check if the JSON file exists, else use default data
+if os.path.exists(json_file_path):
+    with open(json_file_path, "r") as f:
+        matchup_data = json.load(f)
+else:
+    st.warning("Fantasy matchup file not found. Using default data.")
+    matchup_data = [
+        {"Team 1 Player": "Josh Allen", "Team 1 Points": 28.4, "Team 2 Player": "Patrick Mahomes", "Team 2 Points": 26.22},
+        {"Team 1 Player": "Saquon Barkley", "Team 1 Points": 20.6, "Team 2 Player": "Aaron Jones", "Team 2 Points": 19.02}
+    ]
 
 # Configure the app with branding
 st.set_page_config(page_title="Fantasy Champions Sportsbook", layout="wide")
@@ -83,14 +93,3 @@ for index, row in df.iterrows():
     with col4:
         st.write(f"**Odds:** {row['Team 2 Points']}")
     st.markdown("---")
-
-st.sidebar.header("Bet Slip")
-if "bet_slip" not in st.session_state:
-    st.session_state.bet_slip = []
-
-bet_amount = st.sidebar.number_input("Enter Bet Amount ($):", min_value=1, value=10)
-if st.sidebar.button("Calculate Potential Payout"):
-    st.sidebar.success(f"Your potential payout: **${bet_amount * 2}** (Mock Calculation)")
-if st.sidebar.button("Clear Bet Slip"):
-    st.session_state.bet_slip = []
-    st.sidebar.success("Bet slip cleared!")
