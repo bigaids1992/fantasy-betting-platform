@@ -2,11 +2,7 @@ import streamlit as st
 import pandas as pd
 import json
 import os
-
-# Ensure /mnt/data/ directory exists
-DATA_DIR = "/mnt/data/"
-if not os.path.exists(DATA_DIR):
-    os.makedirs(DATA_DIR)
+from io import BytesIO
 
 # Set page config as the first command
 st.set_page_config(page_title="Fantasy Champions Sportsbook", layout="wide")
@@ -14,6 +10,10 @@ st.set_page_config(page_title="Fantasy Champions Sportsbook", layout="wide")
 # Sidebar Navigation
 st.sidebar.title("📌 Navigation")
 page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "Bet Slip", "Upload Images"])
+
+# Store uploaded images in session state
+if "player_images" not in st.session_state:
+    st.session_state.player_images = {}
 
 # Upload Fantasy Matchup File
 matchup_file = st.sidebar.file_uploader("Upload Fantasy Matchup JSON File", type=["json"])
@@ -42,24 +42,17 @@ st.sidebar.header("Upload Player Images")
 image_files = st.sidebar.file_uploader("Upload Player Images (PNG, JPG, JPEG)", accept_multiple_files=True, type=["png", "jpg", "jpeg"])
 if image_files:
     for image in image_files:
-        file_path = os.path.join(DATA_DIR, image.name)
-        with open(file_path, "wb") as f:
-            f.write(image.getbuffer())
+        image_name = image.name.replace(" ", "_")
+        st.session_state.player_images[image_name] = BytesIO(image.getbuffer())
     st.sidebar.success("Images Uploaded Successfully!")
 
-# Debug: List uploaded files if the directory exists
-uploaded_files = os.listdir(DATA_DIR) if os.path.exists(DATA_DIR) else []
-st.sidebar.write("### Uploaded Files:")
-for file in uploaded_files:
-    st.sidebar.write(file)
-
-# Function to find the player's image file
+# Function to get player image from session state
 def get_player_image(player_name):
     formatted_name = player_name.replace(" ", "_")
     for ext in ["png", "jpg", "jpeg"]:
-        file_path = os.path.join(DATA_DIR, f"{formatted_name}.{ext}")
-        if os.path.exists(file_path):
-            return file_path
+        file_key = f"{formatted_name}.{ext}"
+        if file_key in st.session_state.player_images:
+            return st.session_state.player_images[file_key]
     return "https://via.placeholder.com/75?text=?"  # Placeholder image for missing files
 
 # Home Page
