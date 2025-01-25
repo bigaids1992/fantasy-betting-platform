@@ -2,10 +2,23 @@ import streamlit as st
 import pandas as pd
 import json
 
-# Set page config as the first command
+# Set page config as the first command with background styling
 st.set_page_config(page_title="Fantasy Champions Sportsbook", layout="wide")
 
-# Sidebar Navigation
+# Apply background image styling
+page_bg_img = f'''
+<style>
+[data-testid="stAppViewContainer"] {{
+    background-image: url("https://i.imgur.com/G0Hb2PZ.png");
+    background-size: cover;
+    background-position: center;
+}}
+</style>
+'''
+st.markdown(page_bg_img, unsafe_allow_html=True)
+
+# Sidebar Navigation with Logo
+st.sidebar.image("https://i.imgur.com/STUXtV3.png", width=200)
 st.sidebar.title("📌 Navigation")
 page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "Bet Slip"])
 
@@ -33,6 +46,7 @@ def get_player_image(player_name):
 
 # Home Page
 if page == "Home":
+    st.image("https://i.imgur.com/STUXtV3.png", width=250)  # Display logo prominently
     st.title("Fantasy Champions Sportsbook")
     matchup_data = st.session_state.get("matchup_data", {})
     if matchup_data:
@@ -60,6 +74,7 @@ if page == "Home":
 # Bet Slip Page
 elif page == "Bet Slip":
     st.title("📌 Your Bet Slip")
+    st.image("https://i.imgur.com/STUXtV3.png", width=150)  # Display logo again
     if len(st.session_state.bet_slip) == 0:
         st.write("No bets added yet. Go to the **Home** page to add bets.")
     else:
@@ -77,6 +92,7 @@ elif page == "Bet Slip":
 # Fantasy League Page
 elif page == "Fantasy League":
     st.title("📥 Fantasy League Matchup Details")
+    st.image("https://i.imgur.com/STUXtV3.png", width=150)  # Display logo again
     matchup_data = st.session_state.get("matchup_data", {})
     if matchup_data:
         st.header(f"🏈 {matchup_data.get('team_1', 'Team 1')} vs {matchup_data.get('team_2', 'Team 2')}")
