@@ -56,3 +56,42 @@ def get_player_image(player_name):
         "Mark Andrews": "https://i.imgur.com/TpMtxRd.png"
     }
     return image_urls.get(player_name, "https://via.placeholder.com/75?text=?")
+
+# Home Page - Predetermined Bets
+if page == "Home":
+    st.title("Fantasy Champions Sportsbook")
+    st.button("Sync League")  # Placeholder
+    
+    st.header("🎯 Predetermined Betting Options")
+    for player, odds in st.session_state.bet_odds.items():
+        col1, col2, col3 = st.columns([2, 2, 1])
+        with col1:
+            st.image(get_player_image(player), width=75)
+        with col2:
+            st.write(f"**{player}** - Odds: {odds}")
+        with col3:
+            if st.button(f"Bet on {player}", key=f"bet_{player}"):
+                st.session_state.bet_slip.append(f"{player} ({odds})")
+                st.rerun()
+
+# Fantasy League Page - Hardcoded Matchup
+if page == "Fantasy League":
+    st.title("📥 Fantasy League Matchup Details")
+    st.button("Sync League")  # Placeholder Button
+    
+    st.header("🏈 The Gridiron Grandpas vs Graveskowski Marches On")
+    st.subheader("Projected Score: 151.26 - 85.46")
+    
+    st.write("### Head-to-Head Matchup")
+    players = list(st.session_state.fantasy_scores.keys())
+    for i in range(0, len(players), 2):
+        col1, col2, col3 = st.columns([3, 1, 3])
+        with col1:
+            st.image(get_player_image(players[i]), width=100)
+            st.write(f"**{players[i]}** - Fantasy Points: {st.session_state.fantasy_scores[players[i]]}")
+        with col2:
+            st.write("VS")
+        with col3:
+            if i + 1 < len(players):
+                st.image(get_player_image(players[i + 1]), width=100)
+                st.write(f"**{players[i + 1]}** - Fantasy Points: {st.session_state.fantasy_scores[players[i + 1]]}")
