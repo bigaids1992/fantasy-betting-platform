@@ -23,7 +23,7 @@ st.sidebar.title("📌 Navigation")
 st.sidebar.write("💰 **Balance: $1,000.00**")
 page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "My Bets", "Bet Slip", "Live Tracker"])
 
-# Initialize session state variables
+# Initialize session state variables if they don't exist
 if "bet_slip" not in st.session_state:
     st.session_state.bet_slip = []
 if "live_updates" not in st.session_state:
@@ -61,10 +61,10 @@ def get_player_image(player_name):
     }
     return image_urls.get(player_name, "https://via.placeholder.com/75?text=?")
 
-# My Bets Page - Active Bets with Stake, Payout & Cashout
+# My Bets Page - Display Active Bets with Stake, Payout & Cashout
 if page == "My Bets":
     st.title("📌 My Active Bets")
-    if len(st.session_state.live_bets) == 0:
+    if not st.session_state.live_bets:
         st.write("No active bets at the moment.")
     else:
         for bet in st.session_state.live_bets:
@@ -83,10 +83,10 @@ if page == "My Bets":
                     st.success(f"Cashed out: {bet}")
                     st.rerun()
 
-# Bet Slip Page - Display Bets from Home Page with Transfer to My Bets
+# Bet Slip Page - Transfer Bets to My Bets
 if page == "Bet Slip":
     st.title("📌 Your Bet Slip")
-    if len(st.session_state.bet_slip) == 0:
+    if not st.session_state.bet_slip:
         st.write("No bets added yet. Go to the **Home** page to add bets.")
     else:
         for bet in st.session_state.bet_slip:
