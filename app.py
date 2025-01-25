@@ -65,15 +65,19 @@ def get_player_image(player_name):
     }
     return image_urls.get(player_name, "https://via.placeholder.com/100?text=?")
 
-# Home Page - Predetermined Bets
+# Home Page - Predetermined Bets (Independent of Fantasy League)
 if page == "Home":
     st.title("Fantasy Champions Sportsbook")
     st.video("https://www.youtube.com/watch?v=3qieRrwAT2c")
     st.button("Sync League")  # Placeholder
     
     st.header("🎯 Predetermined Betting Options")
-    for player in fantasy_scores.keys():
-        odds = random.choice([100, 120, -110, -130, 150])  # Mock odds
+    bet_odds = {
+        "Josh Allen": 150, "Patrick Mahomes": 140, "Saquon Barkley": -110, "Nick Chubb": -120,
+        "Aaron Jones": 130, "Alvin Kamara": 115, "Cooper Kupp": 125, "Ja'Marr Chase": 135,
+        "Courtland Sutton": 145, "Justin Jefferson": 160, "Travis Kelce": 175, "Mark Andrews": 180
+    }
+    for player, odds in bet_odds.items():
         col1, col2, col3 = st.columns([2, 2, 1])
         with col1:
             st.image(get_player_image(player), width=75)
@@ -82,7 +86,7 @@ if page == "Home":
         with col3:
             if st.button(f"Bet on {player}", key=f"bet_{player}"):
                 st.session_state.bet_slip.append(f"{player} ({odds})")
-                st.session_state.live_bets.append({"player": player, "odds": odds, "stake": 10, "potential_payout": 10 * 2})
+                st.session_state.live_bets.append(f"{player} ({odds})")
                 st.rerun()
 
 # Fantasy League Page - Hardcoded Matchup (Independent of Bets)
@@ -104,8 +108,3 @@ if page == "Fantasy League":
         with col3:
             st.image(get_player_image(player2), width=100)
             st.write(f"**{player2}** - Fantasy Points: {fantasy_scores[player2]}")
-    
-    st.write("### Matchup Summary")
-    st.write("- **Key Players:** Josh Allen vs. Patrick Mahomes")
-    st.write("- **Running Back Battle:** Saquon Barkley vs. Nick Chubb")
-    st.write("- **Wide Receiver Stars:** Cooper Kupp vs. Ja'Marr Chase")
