@@ -16,9 +16,10 @@ page_bg_img = f'''
 '''
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
-# Sidebar Navigation with Logo
+# Sidebar Navigation with Logo and Mock Balance
 st.sidebar.image("https://i.imgur.com/STUXtV3.png", width=200)
 st.sidebar.title("📌 Navigation")
+st.sidebar.write("💰 **Balance: $1,000.00**")
 page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "Bet Slip", "Live Tracker"])
 
 # Initialize session state for bet slip
@@ -72,7 +73,8 @@ if page == "Home":
 # Fantasy League Page - Hardcoded Matchup
 if page == "Fantasy League":
     st.title("📥 Fantasy League Matchup Details")
-    st.button("Sync League")  # Placeholder Button
+    if st.button("Sync League"):
+        pass  # Placeholder Button
     
     st.header("🏈 The Gridiron Grandpas vs Graveskowski Marches On")
     st.subheader("Projected Score: 151.26 - 85.46")
@@ -94,7 +96,7 @@ if page == "Fantasy League":
             st.image(get_player_image(p2), width=100)
             st.write(f"**{p2} ({pos2})** - {pts2} Pts")
 
-# Bet Slip Page - Display Bets from Home Page
+# Bet Slip Page - Display Bets from Home Page with Calculator
 if page == "Bet Slip":
     st.title("📌 Your Bet Slip")
     if len(st.session_state.bet_slip) == 0:
@@ -103,6 +105,12 @@ if page == "Bet Slip":
         st.write("### Your Selected Bets")
         for bet in st.session_state.bet_slip:
             st.write(f"✅ {bet}")
+        
+        st.write("---")
+        bet_amount = st.number_input("Enter Bet Amount ($):", min_value=1, value=10)
+        potential_payout = bet_amount * 2  # Mock Calculation
+        if st.button("Calculate Payout"):
+            st.success(f"Your potential payout: **${potential_payout:.2f}**")
 
 # Live Tracker Page - Generate Hardcoded Live Events
 if page == "Live Tracker":
