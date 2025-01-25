@@ -1,5 +1,6 @@
 import streamlit as st
 import random
+import time
 
 # Set page config with background styling
 st.set_page_config(page_title="Fantasy Champions Sportsbook", layout="wide")
@@ -20,11 +21,23 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 st.sidebar.image("https://i.imgur.com/STUXtV3.png", width=200)
 st.sidebar.title("📌 Navigation")
 st.sidebar.write("💰 **Balance: $1,000.00**")
-page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "Bet Slip", "Live Tracker"])
+page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "My Bets", "Bet Slip", "Live Tracker"])
 
-# Initialize session state for bet slip
+# Initialize session state variables
 if "bet_slip" not in st.session_state:
     st.session_state.bet_slip = []
+if "live_updates" not in st.session_state:
+    st.session_state.live_updates = []
+if "fantasy_scores" not in st.session_state:
+    st.session_state.fantasy_scores = {
+        "Josh Allen": 30.5, "Patrick Mahomes": 32.5, "Saquon Barkley": 22.3, "Nick Chubb": 21.4,
+        "Aaron Jones": 19.8, "Alvin Kamara": 20.1, "Cooper Kupp": 24.2, "Ja'Marr Chase": 22.7,
+        "Courtland Sutton": 17.5, "Justin Jefferson": 26.8, "Travis Kelce": 25.6, "Mark Andrews": 18.9
+    }
+if "bet_odds" not in st.session_state:
+    st.session_state.bet_odds = {"Josh Allen": 150, "Patrick Mahomes": 140, "Saquon Barkley": -110, "Nick Chubb": -120}
+if "live_bets" not in st.session_state:
+    st.session_state.live_bets = []
 
 # Function to get player images
 def get_player_image(player_name):
@@ -36,41 +49,7 @@ def get_player_image(player_name):
     }
     return image_urls.get(player_name, "https://via.placeholder.com/75?text=?")
 
-# Home Page - Predetermined Bets
-if page == "Home":
-    col1, col2 = st.columns([3, 2])
-    with col1:
-        st.image("https://i.imgur.com/STUXtV3.png", width=250)
-        st.title("Fantasy Champions Sportsbook")
-        
-        if st.button("Sync League"):
-            pass  # Placeholder for future functionality
-        
-        st.header("🎯 Predetermined Betting Options")
-        bets = [
-            {"Player": "Josh Allen", "Prop": "Over 250 Passing Yards", "Odds": "+150"},
-            {"Player": "Patrick Mahomes", "Prop": "Over 275 Passing Yards", "Odds": "+140"},
-            {"Player": "Saquon Barkley", "Prop": "Over 80 Rushing Yards", "Odds": "-110"},
-            {"Player": "Nick Chubb", "Prop": "Over 90 Rushing Yards", "Odds": "-120"}
-        ]
-        
-        for bet in bets:
-            col1_inner, col2_inner, col3, col4 = st.columns([1, 2, 2, 1])
-            with col1_inner:
-                st.image(get_player_image(bet['Player']), width=75)
-            with col2_inner:
-                st.write(f"**{bet['Player']}**")
-            with col3:
-                st.write(f"💰 {bet['Odds']}")
-            with col4:
-                if st.button(f"Bet: {bet['Prop']}", key=f"bet_{bet['Player']}"):
-                    st.session_state.bet_slip.append(f"{bet['Player']} - {bet['Prop']} ({bet['Odds']})")
-                    st.rerun()
-            st.markdown("---")
-    with col2:
-        st.video("https://www.youtube.com/embed/3qieRrwAT2c", start_time=0)
-
-# Fantasy League Page - Hardcoded Matchup
+# Fantasy League Page - Hardcoded Matchup with Full Player Roster
 if page == "Fantasy League":
     st.title("📥 Fantasy League Matchup Details")
     if st.button("Sync League"):
@@ -79,60 +58,56 @@ if page == "Fantasy League":
     st.header("🏈 The Gridiron Grandpas vs Graveskowski Marches On")
     st.subheader("Projected Score: 151.26 - 85.46")
     
-    st.write("### Head-to-Head Matchup")
-    players = [
-        ("Josh Allen", "QB", "30.5", "Patrick Mahomes", "QB", "32.5"),
-        ("Saquon Barkley", "RB", "22.3", "Nick Chubb", "RB", "21.4"),
-    ]
-    
-    for p1, pos1, pts1, p2, pos2, pts2 in players:
-        col1, col2, col3 = st.columns([3, 1, 3])
-        with col1:
-            st.image(get_player_image(p1), width=100)
-            st.write(f"**{p1} ({pos1})** - {pts1} Pts")
-        with col2:
-            st.write("VS")
-        with col3:
-            st.image(get_player_image(p2), width=100)
-            st.write(f"**{p2} ({pos2})** - {pts2} Pts")
+    matchup_container = st.empty()
+    with matchup_container:
+        st.write("### Head-to-Head Matchup")
+        players = list(st.session_state.fantasy_scores.keys())
+        for i in range(0, len(players), 2):
+            col1, col2, col3 = st.columns([3, 1, 3])
+            with col1:
+                st.image(get_player_image(players[i]), width=100)
+                st.write(f"**{players[i]}** - Fantasy Points: {st.session_state.fantasy_scores[players[i]]}")
+            with col2:
+                st.write("VS")
+            with col3:
+                if i + 1 < len(players):
+                    st.image(get_player_image(players[i + 1]), width=100)
+                    st.write(f"**{players[i + 1]}** - Fantasy Points: {st.session_state.fantasy_scores[players[i + 1]]}")
 
-# Bet Slip Page - Display Bets from Home Page with Calculator
+# My Bets Page - Active Bets with Cashout Option
+if page == "My Bets":
+    st.title("📌 My Active Bets")
+    if len(st.session_state.live_bets) == 0:
+        st.write("No active bets at the moment.")
+    else:
+        for bet in st.session_state.live_bets:
+            col1, col2 = st.columns([4, 1])
+            with col1:
+                st.write(f"✅ {bet}")
+            with col2:
+                if st.button("Cash Out", key=f"cashout_live_{bet}"):
+                    st.session_state.live_bets.remove(bet)
+                    st.success(f"Cashed out: {bet}")
+                    st.rerun()
+
+# Bet Slip Page - Display Bets from Home Page with Cashout Option
 if page == "Bet Slip":
     st.title("📌 Your Bet Slip")
     if len(st.session_state.bet_slip) == 0:
         st.write("No bets added yet. Go to the **Home** page to add bets.")
     else:
-        st.write("### Your Selected Bets")
         for bet in st.session_state.bet_slip:
-            st.write(f"✅ {bet}")
+            col1, col2 = st.columns([4, 1])
+            with col1:
+                st.write(f"✅ {bet}")
+            with col2:
+                if st.button("Move to My Bets", key=f"move_{bet}"):
+                    st.session_state.live_bets.append(bet)
+                    st.session_state.bet_slip.remove(bet)
+                    st.rerun()
         
         st.write("---")
         bet_amount = st.number_input("Enter Bet Amount ($):", min_value=1, value=10)
         potential_payout = bet_amount * 2  # Mock Calculation
         if st.button("Calculate Payout"):
             st.success(f"Your potential payout: **${potential_payout:.2f}**")
-
-# Live Tracker Page - Generate Hardcoded Live Events
-if page == "Live Tracker":
-    st.title("📡 Live Fantasy Tracker")
-    st.write("Real-time player updates appear here!")
-    
-    if "live_updates" not in st.session_state:
-        st.session_state.live_updates = []
-    
-    players = ["Josh Allen", "Patrick Mahomes", "Saquon Barkley", "Nick Chubb"]
-    events = [
-        "scores a touchdown!",
-        "rushes for 10 yards!",
-        "throws a deep pass!",
-        "makes a spectacular catch!",
-        "breaks a tackle for a huge gain!"
-    ]
-    
-    if st.button("Generate Live Update"):
-        update = f"{random.choice(players)} {random.choice(events)}"
-        st.session_state.live_updates.insert(0, update)
-    
-    st.write("### Latest Updates:")
-    for update in st.session_state.live_updates[:10]:
-        st.write(f"- {update}")
