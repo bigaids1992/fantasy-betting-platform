@@ -1,8 +1,5 @@
 import streamlit as st
-import pandas as pd
-import json
 import random
-import time
 
 # Set page config with background styling
 st.set_page_config(page_title="Fantasy Champions Sportsbook", layout="wide")
@@ -24,37 +21,11 @@ st.sidebar.image("https://i.imgur.com/STUXtV3.png", width=200)
 st.sidebar.title("📌 Navigation")
 page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "Bet Slip", "Live Tracker"])
 
-# Initialize session state variables to prevent attribute errors
+# Initialize session state for bet slip
 if "bet_slip" not in st.session_state:
     st.session_state.bet_slip = []
-if "live_updates" not in st.session_state:
-    st.session_state.live_updates = []
 
-# Hardcoded Matchup Data for Demo Purposes
-matchup_data = {
-    "team_1": "The Gridiron Grandpas",
-    "team_2": "Graveskowski Marches On",
-    "team_1_score": 151.26,
-    "team_2_score": 85.46,
-    "players": [
-        {"Player": "Josh Allen", "Position": "QB", "Fantasy Points": 30.5, "Projected Prop": "Over 250 Passing Yards", "Odds": "+150"},
-        {"Player": "Patrick Mahomes", "Position": "QB", "Fantasy Points": 32.5, "Projected Prop": "Over 275 Passing Yards", "Odds": "+140"},
-        {"Player": "Saquon Barkley", "Position": "RB", "Fantasy Points": 22.3, "Projected Prop": "Over 80 Rushing Yards", "Odds": "-110"},
-        {"Player": "Nick Chubb", "Position": "RB", "Fantasy Points": 21.4, "Projected Prop": "Over 90 Rushing Yards", "Odds": "-120"}
-    ]
-}
-
-# Function to get player image from external hosting
-def get_player_image(player_name):
-    image_urls = {
-        "Josh Allen": "https://i.imgur.com/rvb81LJ.png",
-        "Patrick Mahomes": "https://i.imgur.com/D2mfI4c.png",
-        "Saquon Barkley": "https://i.imgur.com/DEtck1l.png",
-        "Nick Chubb": "https://i.imgur.com/9r5Jy24.png"
-    }
-    return image_urls.get(player_name, "https://via.placeholder.com/75?text=?")
-
-# Home Page - Display Betting Options, Sync Button, and Video
+# Home Page - Predetermined Bets
 if page == "Home":
     col1, col2 = st.columns([3, 2])
     with col1:
@@ -64,23 +35,87 @@ if page == "Home":
         if st.button("Sync League"):
             pass  # Placeholder for future functionality
         
-        st.header("🎯 Fantasy Player Props & Betting Odds")
-        for player in matchup_data["players"]:
-            col1_inner, col2_inner, col3, col4, col5 = st.columns([1, 2, 2, 1, 1])
+        st.header("🎯 Predetermined Betting Options")
+        bets = [
+            {"Player": "Josh Allen", "Prop": "Over 250 Passing Yards", "Odds": "+150"},
+            {"Player": "Patrick Mahomes", "Prop": "Over 275 Passing Yards", "Odds": "+140"},
+            {"Player": "Saquon Barkley", "Prop": "Over 80 Rushing Yards", "Odds": "-110"},
+            {"Player": "Nick Chubb", "Prop": "Over 90 Rushing Yards", "Odds": "-120"}
+        ]
+        
+        for bet in bets:
+            col1_inner, col2_inner, col3 = st.columns([2, 2, 1])
             with col1_inner:
-                img_url = get_player_image(player['Player'])
-                st.image(img_url, width=75)
+                st.write(f"**{bet['Player']}**")
             with col2_inner:
-                st.write(f"**{player['Player']}**")
+                st.write(f"💰 {bet['Odds']}")
             with col3:
-                st.write(f"📊 Fantasy Points: {player['Fantasy Points']}")
-            with col4:
-                st.write(f"💰 Odds: {player['Odds']}")
-            with col5:
-                if st.button(f"Bet: {player['Projected Prop']}", key=f"bet_{player['Player']}"):
-                    st.session_state.bet_slip.append(f"{player['Player']} - {player['Projected Prop']} ({player['Odds']})")
+                if st.button(f"Bet: {bet['Prop']}", key=f"bet_{bet['Player']}"):
+                    st.session_state.bet_slip.append(f"{bet['Player']} - {bet['Prop']} ({bet['Odds']})")
                     st.experimental_rerun()
-                    st.success(f"Added {player['Player']} - {player['Projected Prop']} to Bet Slip!")
+                    st.success(f"Added {bet['Player']} - {bet['Prop']} to Bet Slip!")
             st.markdown("---")
     with col2:
         st.video("https://www.youtube.com/embed/3qieRrwAT2c", start_time=0)
+
+# Fantasy League Page - Hardcoded Matchup
+if page == "Fantasy League":
+    st.title("📥 Fantasy League Matchup Details")
+    st.button("Sync League")  # Placeholder Button
+    
+    st.header("🏈 The Gridiron Grandpas vs Graveskowski Marches On")
+    st.subheader("Projected Score: 151.26 - 85.46")
+    
+    st.write("### Head-to-Head Matchup")
+    players = [
+        ("Josh Allen", "QB", "30.5", "Patrick Mahomes", "QB", "32.5"),
+        ("Saquon Barkley", "RB", "22.3", "Nick Chubb", "RB", "21.4"),
+        ("Aaron Jones", "RB", "19.8", "Alvin Kamara", "RB", "20.1"),
+        ("Cooper Kupp", "WR", "24.2", "J Chase", "WR", "22.7"),
+        ("Courtland Sutton", "WR", "17.5", "Justin Jefferson", "WR", "26.8"),
+        ("Travis Kelce", "TE", "25.6", "Mark Andrews", "TE", "18.9")
+    ]
+    
+    for p1, pos1, pts1, p2, pos2, pts2 in players:
+        col1, col2, col3 = st.columns([3, 1, 3])
+        with col1:
+            st.write(f"**{p1} ({pos1})** - {pts1} Pts")
+        with col2:
+            st.write("VS")
+        with col3:
+            st.write(f"**{p2} ({pos2})** - {pts2} Pts")
+
+# Bet Slip Page - Display Bets from Home Page
+if page == "Bet Slip":
+    st.title("📌 Your Bet Slip")
+    if len(st.session_state.bet_slip) == 0:
+        st.write("No bets added yet. Go to the **Home** page to add bets.")
+    else:
+        st.write("### Your Selected Bets")
+        for bet in st.session_state.bet_slip:
+            st.write(f"✅ {bet}")
+
+# Live Tracker Page - Generate Hardcoded Live Events
+if page == "Live Tracker":
+    st.title("📡 Live Fantasy Tracker")
+    st.write("Real-time player updates appear here!")
+    
+    if "live_updates" not in st.session_state:
+        st.session_state.live_updates = []
+    
+    players = ["Josh Allen", "Patrick Mahomes", "Saquon Barkley", "Nick Chubb", "Cooper Kupp", "Justin Jefferson"]
+    events = [
+        "scores a touchdown!",
+        "rushes for 10 yards!",
+        "throws a deep pass!",
+        "makes a spectacular catch!",
+        "breaks a tackle for a huge gain!"
+    ]
+    
+    if st.button("Generate Live Update"):
+        update = f"{random.choice(players)} {random.choice(events)}"
+        st.session_state.live_updates.insert(0, update)
+    
+    st.write("### Latest Updates:")
+    for update in st.session_state.live_updates[:10]:
+        st.write(f"- {update}")
