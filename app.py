@@ -24,7 +24,7 @@ st.sidebar.image("https://i.imgur.com/STUXtV3.png", width=200)
 st.sidebar.title("📌 Navigation")
 page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "Bet Slip", "Live Tracker"])
 
-# Initialize session state for bet slip and live tracker
+# Initialize session state for bet slip, matchup data, and live tracker
 if "bet_slip" not in st.session_state:
     st.session_state.bet_slip = []
 if "matchup_data" not in st.session_state:
@@ -89,33 +89,7 @@ if page == "Home":
                 with col5:
                     if st.button(f"Bet: {player['Projected Prop']}", key=f"bet_{player['Player']}"):
                         st.session_state.bet_slip.append(f"{player['Player']} - {player['Projected Prop']} ({player['Odds']})")
-                        st.success(f"Added {player['Player']} - {player['Projected Prop']} to Bet Slip!")
+                        st.sidebar.success(f"Added {player['Player']} - {player['Projected Prop']} to Bet Slip!")
                 st.markdown("---")
     with col2:
-        st.video("https://www.youtube.com/embed/VIDEO_ID")  # Corrected embedding method
-
-# Fantasy League Page - Display Matchup Properly
-if page == "Fantasy League":
-    st.title("📥 Fantasy League Matchup Details")
-    st.image("https://i.imgur.com/STUXtV3.png", width=150)  # Display logo again
-    matchup_data = st.session_state.get("matchup_data", {})
-    if matchup_data and "players" in matchup_data:
-        st.header(f"🏈 {matchup_data['team_1']} vs {matchup_data['team_2']}")
-        st.subheader(f"Projected Score: {matchup_data['team_1_score']} - {matchup_data['team_2_score']}")
-        
-        st.write("### Player Matchups & Live Scores")
-        for i in range(0, len(matchup_data["players"]), 2):
-            col1, col2, col3 = st.columns([3, 1, 3])
-            with col1:
-                player1 = matchup_data["players"][i]
-                st.image(get_player_image(player1['Player']), width=100)
-                st.write(f"**{player1['Player']} ({player1['Position']})**")
-                st.write(f"Fantasy Points: {player1['Fantasy Points']}")
-            with col2:
-                st.write("VS")
-            with col3:
-                if i+1 < len(matchup_data["players"]):
-                    player2 = matchup_data["players"][i+1]
-                    st.image(get_player_image(player2['Player']), width=100)
-                    st.write(f"**{player2['Player']} ({player2['Position']})**")
-                    st.write(f"Fantasy Points: {player2['Fantasy Points']}")
+        st.video("https://www.youtube.com/embed/kYhSZTAWvcg")  # Updated YouTube video URL
