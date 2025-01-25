@@ -41,6 +41,9 @@ if matchup_file is not None:
         matchup_json = json.load(matchup_file)
         if "team_1" in matchup_json and "players" in matchup_json:
             st.session_state.matchup_data = matchup_json
+            st.session_state.bet_slip = []  # Clear bet slip when new data is uploaded
+            st.session_state.live_updates = []  # Reset live updates
+            st.session_state.matchup_updates = []  # Reset matchup updates
             st.sidebar.success("Fantasy Matchup File Uploaded Successfully!")
         else:
             st.sidebar.error("Invalid JSON structure. Please upload a valid matchup file.")
@@ -93,7 +96,43 @@ if page == "Home":
                 with col5:
                     if st.button(f"Bet: {player['Projected Prop']}", key=f"bet_{player['Player']}"):
                         st.session_state.bet_slip.append(f"{player['Player']} - {player['Projected Prop']} ({player['Odds']})")
-                        st.sidebar.success(f"Added {player['Player']} - {player['Projected Prop']} to Bet Slip!")
+                        st.success(f"Added {player['Player']} - {player['Projected Prop']} to Bet Slip!")
                 st.markdown("---")
     with col2:
         st.video("https://www.youtube.com/embed/3qieRrwAT2c")  # Updated YouTube video URL
+
+# Bet Slip Page - Display Selected Bets
+if page == "Bet Slip":
+    st.title("📌 Your Bet Slip")
+    if len(st.session_state.bet_slip) == 0:
+        st.write("No bets added yet. Go to the **Home** page to add bets.")
+    else:
+        st.write("### Your Selected Bets")
+        for bet in st.session_state.bet_slip:
+            st.write(f"✅ {bet}")
+
+# Live Tracker - Generate Live Events
+if page == "Live Tracker":
+    st.title("📡 Live Fantasy Tracker")
+    st.write("Real-time player updates appear here!")
+    
+    players = [player["Player"] for player in st.session_state.get("matchup_data", {}).get("players", [])]
+    events = [
+        "scores a touchdown!",
+        "rushes for 10 yards!",
+        "throws a deep pass!",
+        "makes a spectacular catch!",
+        "breaks a tackle for a huge gain!"
+    ]
+    
+    if st.button("Generate Live Update"):
+        if players:
+            update = f"{random.choice(players)} {random.choice(events)}"
+            st.session_state.live_updates.insert(0, update)
+        else:
+            update = "Waiting for matchup data..."
+            st.session_state.live_updates.insert(0, update)
+    
+    st.write("### Latest Updates:")
+    for update in st.session_state.live_updates[:10]:
+        st.write(f"- {update}")
