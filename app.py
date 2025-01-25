@@ -3,6 +3,9 @@ import pandas as pd
 import json
 import os
 
+# Set page config as the first command
+st.set_page_config(page_title="Fantasy Champions Sportsbook", layout="wide")
+
 # Define JSON file path
 json_file_path = "/mnt/data/fantasy_matchup_upload.json"
 
@@ -16,9 +19,6 @@ else:
         {"Team 1 Player": "Josh Allen", "Team 1 Points": 28.4, "Team 2 Player": "Patrick Mahomes", "Team 2 Points": 26.22},
         {"Team 1 Player": "Saquon Barkley", "Team 1 Points": 20.6, "Team 2 Player": "Aaron Jones", "Team 2 Points": 19.02}
     ]
-
-# Configure the app with branding
-st.set_page_config(page_title="Fantasy Champions Sportsbook", layout="wide")
 
 # Custom Styling
 st.markdown(
