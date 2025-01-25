@@ -10,16 +10,6 @@ st.set_page_config(page_title="Fantasy Champions Sportsbook", layout="wide")
 st.sidebar.title("📌 Navigation")
 page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "Bet Slip", "Upload Images"])
 
-# Image Upload Section for Logos, Backgrounds, and Players
-st.sidebar.header("Upload Files")
-uploaded_files = st.sidebar.file_uploader("Upload Images (Logos, Backgrounds, Players, etc.)", accept_multiple_files=True, type=["png", "jpg", "jpeg"])
-if uploaded_files:
-    for uploaded_file in uploaded_files:
-        file_path = f"/mnt/data/{uploaded_file.name}"
-        with open(file_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        st.sidebar.success(f"Uploaded {uploaded_file.name}")
-
 # Upload Fantasy Matchup File
 matchup_file = st.sidebar.file_uploader("Upload Fantasy Matchup JSON File", type=["json"])
 if matchup_file is not None:
@@ -27,30 +17,43 @@ if matchup_file is not None:
     st.sidebar.success("Fantasy Matchup File Uploaded Successfully!")
 else:
     st.warning("No fantasy matchup file uploaded yet. Using default data.")
-    matchup_data = [
-        {"Team 1 Player": "Josh Allen", "Team 1 Points": 28.4, "Team 2 Player": "Patrick Mahomes", "Team 2 Points": 26.22},
-        {"Team 1 Player": "Saquon Barkley", "Team 1 Points": 20.6, "Team 2 Player": "Aaron Jones", "Team 2 Points": 19.02}
-    ]
-
-df = pd.DataFrame(matchup_data)
+    matchup_data = {
+        "team_1": "Warriors",
+        "team_2": "Titans",
+        "team_1_score": 125.7,
+        "team_2_score": 118.3,
+        "players": [
+            {"Player": "Josh Allen", "Fantasy Points": 26.4, "Projected Prop": "Over 275 Passing Yards", "Odds": "+150"},
+            {"Player": "Derrick Henry", "Fantasy Points": 21.1, "Projected Prop": "Over 100 Rushing Yards", "Odds": "+175"},
+            {"Player": "Davante Adams", "Fantasy Points": 19.8, "Projected Prop": "Over 85 Receiving Yards", "Odds": "+120"},
+            {"Player": "Travis Kelce", "Fantasy Points": 17.5, "Projected Prop": "Over 6.5 Receptions", "Odds": "-110"},
+            {"Player": "Justin Jefferson", "Fantasy Points": 22.9, "Projected Prop": "Over 90 Receiving Yards", "Odds": "+140"},
+            {"Player": "Patrick Mahomes", "Fantasy Points": 24.1, "Projected Prop": "Over 2.5 Passing TDs", "Odds": "+130"}
+        ]
+    }
 
 # Home Page
 if page == "Home":
     st.title("Fantasy Champions Sportsbook")
-    st.header("🎯 Fantasy Matchups and Betting Odds")
+    st.header(f"🏈 {matchup_data['team_1']} vs {matchup_data['team_2']}")
+    st.subheader(f"Projected Score: {matchup_data['team_1_score']} - {matchup_data['team_2_score']}")
     
-    for index, row in df.iterrows():
-        col1, col2, col3, col4, col5 = st.columns([2, 2, 1, 1, 1])
+    st.header("🎯 Fantasy Player Props & Betting Odds")
+    
+    for player in matchup_data["players"]:
+        col1, col2, col3, col4 = st.columns([2, 2, 1, 1])
         with col1:
-            st.write(f"**{row['Team 1 Player']}**")
+            st.write(f"**{player['Player']}**")
         with col2:
-            st.write(f"**{row['Team 2 Player']}**")
+            st.write(f"📊 Fantasy Points: {player['Fantasy Points']}")
         with col3:
-            if st.button(f"Bet {row['Team 1 Player']} ({row['Team 1 Points']})", key=f"bet_{index}_1"):
-                st.session_state.bet_slip.append(f"{row['Team 1 Player']} - {row['Team 1 Points']}")
+            st.write(f"💰 Odds: {player['Odds']}")
         with col4:
-            if st.button(f"Bet {row['Team 2 Player']} ({row['Team 2 Points']})", key=f"bet_{index}_2"):
-                st.session_state.bet_slip.append(f"{row['Team 2 Player']} - {row['Team 2 Points']}")
+            if st.button(f"Bet: {player['Projected Prop']}", key=f"bet_{player['Player']}"):
+                if "bet_slip" not in st.session_state:
+                    st.session_state.bet_slip = []
+                st.session_state.bet_slip.append(f"{player['Player']} - {player['Projected Prop']} ({player['Odds']})")
+                st.success(f"Added {player['Player']} - {player['Projected Prop']} to Bet Slip!")
         st.markdown("---")
 
 # Bet Slip Page
@@ -75,19 +78,13 @@ elif page == "Bet Slip":
 
 # Fantasy League Page
 elif page == "Fantasy League":
-    st.title("📥 Import Your Fantasy League")
-    st.write("Sync your **Sleeper, ESPN, or Yahoo Fantasy** league to generate personalized bets.")
-    if matchup_file is not None:
-        st.write("Fantasy matchup uploaded and loaded successfully!")
-        st.table(df)
-    else:
-        st.write("No fantasy matchup uploaded yet. Go to 'Upload Images' and upload a JSON file.")
+    st.title("📥 Fantasy League Matchup Details")
+    st.header(f"🏈 {matchup_data['team_1']} vs {matchup_data['team_2']}")
+    st.subheader(f"Projected Score: {matchup_data['team_1_score']} - {matchup_data['team_2_score']}")
+    st.write("### Player Data")
+    st.table(pd.DataFrame(matchup_data["players"]))
 
 # Upload Images Page
 elif page == "Upload Images":
     st.title("📤 Upload and Manage Images")
     st.write("Use the sidebar to upload images for logos, backgrounds, and players.")
-    if uploaded_files:
-        st.write("### Uploaded Files")
-        for uploaded_file in uploaded_files:
-            st.write(f"✅ {uploaded_file.name}")
