@@ -39,10 +39,10 @@ if "bet_odds" not in st.session_state:
 if "live_bets" not in st.session_state:
     st.session_state.live_bets = []
 
-# Function to get player images
+# Function to get player images for Fantasy League Page
 def get_player_image(player_name):
     image_urls = {
-        "Josh Allen": "https://i.imgur.com/rvb81LJ.png",
+        "Josh Allen": "https://i.imgur.com/Qwe9GQL.png",
         "Patrick Mahomes": "https://i.imgur.com/D2mfI4c.png",
         "Saquon Barkley": "https://i.imgur.com/DEtck1l.png",
         "Nick Chubb": "https://i.imgur.com/9r5Jy24.png",
@@ -55,26 +55,9 @@ def get_player_image(player_name):
         "Travis Kelce": "https://i.imgur.com/QYHkLZ9.png",
         "Mark Andrews": "https://i.imgur.com/TpMtxRd.png"
     }
-    return image_urls.get(player_name, "https://via.placeholder.com/75?text=?")
+    return image_urls.get(player_name, "https://via.placeholder.com/100?text=?")
 
-# Home Page - Predetermined Bets
-if page == "Home":
-    st.title("Fantasy Champions Sportsbook")
-    st.button("Sync League")  # Placeholder
-    
-    st.header("🎯 Predetermined Betting Options")
-    for player, odds in st.session_state.bet_odds.items():
-        col1, col2, col3 = st.columns([2, 2, 1])
-        with col1:
-            st.image(get_player_image(player), width=75)
-        with col2:
-            st.write(f"**{player}** - Odds: {odds}")
-        with col3:
-            if st.button(f"Bet on {player}", key=f"bet_{player}"):
-                st.session_state.bet_slip.append(f"{player} ({odds})")
-                st.rerun()
-
-# Fantasy League Page - Hardcoded Matchup
+# Fantasy League Page - Hardcoded Matchup with Images
 if page == "Fantasy League":
     st.title("📥 Fantasy League Matchup Details")
     st.button("Sync League")  # Placeholder Button
