@@ -90,30 +90,30 @@ if page == "Home":
                 st.session_state.live_bets.append(f"{player} ({odds})")
                 st.rerun()
 
-# Fantasy League Page - Hardcoded Matchup
-if page == "Fantasy League":
-    st.title("📥 Fantasy League Matchup Details")
-    st.button("Sync League")  # Placeholder Button
-    
-    st.header("🏈 The Gridiron Grandpas vs Graveskowski Marches On")
-    st.subheader("Projected Score: 151.26 - 85.46")
-    
-    st.write("### Head-to-Head Matchup")
-    for player1, player2 in fantasy_matchup:
-        col1, col2, col3 = st.columns([3, 1, 3])
-        with col1:
-            st.image(get_player_image(player1), width=100)
-            st.write(f"**{player1}** - Fantasy Points: {fantasy_scores[player1]}")
-        with col2:
-            st.write("VS")
-        with col3:
-            st.image(get_player_image(player2), width=100)
-            st.write(f"**{player2}** - Fantasy Points: {fantasy_scores[player2]}")
-    
-    st.write("### Matchup Summary")
-    st.write("- **Key Players:** Josh Allen vs. Patrick Mahomes")
-    st.write("- **Running Back Battle:** Saquon Barkley vs. Nick Chubb")
-    st.write("- **Wide Receiver Stars:** Cooper Kupp vs. Ja'Marr Chase")
+# My Bets Page - Active Bets Display
+if page == "My Bets":
+    st.title("📌 My Active Bets")
+    if not st.session_state.live_bets:
+        st.write("No active bets at the moment.")
+    else:
+        for bet in st.session_state.live_bets:
+            st.write(f"✅ {bet}")
+
+# Bet Slip Page - Display Bets from Home Page with Transfer to My Bets
+if page == "Bet Slip":
+    st.title("📌 Your Bet Slip")
+    if not st.session_state.bet_slip:
+        st.write("No bets added yet. Go to the **Home** page to add bets.")
+    else:
+        for bet in st.session_state.bet_slip:
+            col1, col2 = st.columns([4, 1])
+            with col1:
+                st.write(f"✅ {bet}")
+            with col2:
+                if st.button("Move to My Bets", key=f"move_{bet}"):
+                    st.session_state.live_bets.append(bet)
+                    st.session_state.bet_slip.remove(bet)
+                    st.rerun()
 
 # Live Tracker Page - Live Updates Sync
 if page == "Live Tracker":
