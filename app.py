@@ -96,19 +96,42 @@ if page == "Home":
                 with col5:
                     if st.button(f"Bet: {player['Projected Prop']}", key=f"bet_{player['Player']}"):
                         st.session_state.bet_slip.append(f"{player['Player']} - {player['Projected Prop']} ({player['Odds']})")
-                        st.session_state.sync()  # Ensure bet slip persists across pages
                         st.success(f"Added {player['Player']} - {player['Projected Prop']} to Bet Slip!")
                 st.markdown("---")
     with col2:
         st.video("https://www.youtube.com/embed/3qieRrwAT2c")  # Updated YouTube video URL
 
-# Fantasy League Page - Display Matchup Data
+# Bet Slip Page - Display Selected Bets
+if page == "Bet Slip":
+    st.title("📌 Your Bet Slip")
+    if len(st.session_state.bet_slip) == 0:
+        st.write("No bets added yet. Go to the **Home** page to add bets.")
+    else:
+        st.write("### Your Selected Bets")
+        for bet in st.session_state.bet_slip:
+            st.write(f"✅ {bet}")
+
+# Fantasy League Page - Display Matchup Data Side-by-Side
 if page == "Fantasy League":
     st.title("📥 Fantasy League Matchup Details")
     matchup_data = st.session_state.get("matchup_data", {})
     if matchup_data and "players" in matchup_data:
         st.header(f"🏈 {matchup_data['team_1']} vs {matchup_data['team_2']}")
         st.subheader(f"Projected Score: {matchup_data['team_1_score']} - {matchup_data['team_2_score']}")
-        st.write("### Player Matchups & Live Scores")
-        for player in matchup_data["players"]:
-            st.write(f"**{player['Player']} ({player['Position']})** - Fantasy Points: {player['Fantasy Points']}")
+        
+        st.write("### Head-to-Head Matchup")
+        for i in range(0, len(matchup_data["players"]), 2):
+            col1, col2, col3 = st.columns([3, 1, 3])
+            with col1:
+                player1 = matchup_data["players"][i]
+                st.image(get_player_image(player1['Player']), width=100)
+                st.write(f"**{player1['Player']} ({player1['Position']})**")
+                st.write(f"Fantasy Points: {player1['Fantasy Points']}")
+            with col2:
+                st.write("VS")
+            with col3:
+                if i+1 < len(matchup_data["players"]):
+                    player2 = matchup_data["players"][i+1]
+                    st.image(get_player_image(player2['Player']), width=100)
+                    st.write(f"**{player2['Player']} ({player2['Position']})**")
+                    st.write(f"Fantasy Points: {player2['Fantasy Points']}")
