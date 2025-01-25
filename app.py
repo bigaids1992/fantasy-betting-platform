@@ -10,6 +10,14 @@ st.sidebar.title("📌 Navigation")
 st.sidebar.write("💰 **Balance: $1,000.00**")
 page = st.sidebar.radio("Go to", ["Home", "Fantasy League", "My Bets", "Bet Slip", "Live Tracker"])
 
+# Initialize session state variables
+if "bet_slip" not in st.session_state:
+    st.session_state.bet_slip = []
+if "live_updates" not in st.session_state:
+    st.session_state.live_updates = []
+if "live_bets" not in st.session_state:
+    st.session_state.live_bets = []
+
 # Function to get player images
 def get_player_image(player_name):
     image_urls = {
@@ -80,19 +88,27 @@ if page == "Fantasy League":
             st.image(get_player_image(player2), width=100)
             st.write(f"**{player2}** - Fantasy Points: {fantasy_scores.get(player2, 'N/A')}")
 
-# Live Tracker Page
-if page == "Live Tracker":
-    st.title("📡 Live Fantasy Tracker")
-    players = list(fantasy_scores.keys())
-    events = ["scores a touchdown!", "rushes for 10 yards!", "throws a deep pass!", "makes a spectacular catch!", "breaks a tackle for a huge gain!"]
-    
-    if "live_updates" not in st.session_state:
-        st.session_state.live_updates = []
-    
-    if st.button("Generate Live Update"):
-        update = f"{random.choice(players)} {random.choice(events)}"
-        st.session_state.live_updates.insert(0, update)
-    
-    st.write("### Latest Updates:")
-    for update in st.session_state.live_updates[:10]:
-        st.write(f"- {update}")
+# Bet Slip Page
+if page == "Bet Slip":
+    st.title("📌 Your Bet Slip")
+    if not st.session_state.bet_slip:
+        st.write("No bets added yet. Go to the **Home** page to add bets.")
+    else:
+        for bet in st.session_state.bet_slip:
+            col1, col2 = st.columns([4, 1])
+            with col1:
+                st.write(f"✅ {bet[0]} - Odds: {bet[1]}")
+            with col2:
+                if st.button("Place Bet", key=f"place_{bet[0]}"):
+                    st.session_state.live_bets.append(bet)
+                    st.session_state.bet_slip.remove(bet)
+                    st.rerun()
+
+# My Bets Page
+if page == "My Bets":
+    st.title("📌 My Active Bets")
+    if not st.session_state.live_bets:
+        st.write("No active bets at the moment.")
+    else:
+        for bet in st.session_state.live_bets:
+            st.write(f"✅ {bet[0]} - Odds: {bet[1]}")
