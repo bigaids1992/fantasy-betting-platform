@@ -3,6 +3,11 @@ import pandas as pd
 import json
 import os
 
+# Ensure /mnt/data/ directory exists
+DATA_DIR = "/mnt/data/"
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR)
+
 # Set page config as the first command
 st.set_page_config(page_title="Fantasy Champions Sportsbook", layout="wide")
 
@@ -37,13 +42,13 @@ st.sidebar.header("Upload Player Images")
 image_files = st.sidebar.file_uploader("Upload Player Images (PNG, JPG, JPEG)", accept_multiple_files=True, type=["png", "jpg", "jpeg"])
 if image_files:
     for image in image_files:
-        file_path = f"/mnt/data/{image.name}"
+        file_path = os.path.join(DATA_DIR, image.name)
         with open(file_path, "wb") as f:
             f.write(image.getbuffer())
     st.sidebar.success("Images Uploaded Successfully!")
 
-# Debug: List uploaded files
-uploaded_files = os.listdir("/mnt/data/")
+# Debug: List uploaded files if the directory exists
+uploaded_files = os.listdir(DATA_DIR) if os.path.exists(DATA_DIR) else []
 st.sidebar.write("### Uploaded Files:")
 for file in uploaded_files:
     st.sidebar.write(file)
@@ -52,7 +57,7 @@ for file in uploaded_files:
 def get_player_image(player_name):
     formatted_name = player_name.replace(" ", "_")
     for ext in ["png", "jpg", "jpeg"]:
-        file_path = f"/mnt/data/{formatted_name}.{ext}"
+        file_path = os.path.join(DATA_DIR, f"{formatted_name}.{ext}")
         if os.path.exists(file_path):
             return file_path
     return "https://via.placeholder.com/75?text=?"  # Placeholder image for missing files
