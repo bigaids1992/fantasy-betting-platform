@@ -63,55 +63,45 @@ def get_player_image(player_name):
     }
     return image_urls.get(player_name, "https://via.placeholder.com/75?text=?")
 
-# Home Page - Display Bets from Matchup Data
-if page == "Home":
-    st.image("https://i.imgur.com/STUXtV3.png", width=250)  # Display logo prominently
-    st.title("Fantasy Champions Sportsbook")
-    matchup_data = st.session_state.get("matchup_data", {})
-    if matchup_data:
-        st.header(f"🏈 {matchup_data['team_1']} vs {matchup_data['team_2']}")
-        st.subheader(f"Projected Score: {matchup_data['team_1_score']} - {matchup_data['team_2_score']}")
-        
-        st.header("🎯 Fantasy Player Props & Betting Odds")
-        for player in matchup_data.get("players", []):
-            col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 1, 1])
-            with col1:
-                img_url = get_player_image(player['Player'])
-                st.image(img_url, width=75)
-            with col2:
-                st.write(f"**{player['Player']}**")
-            with col3:
-                st.write(f"📊 Fantasy Points: {player['Fantasy Points']}")
-            with col4:
-                st.write(f"💰 Odds: {player['Odds']}")
-            with col5:
-                if st.button(f"Bet: {player['Projected Prop']}", key=f"bet_{player['Player']}"):
-                    st.session_state.bet_slip.append(f"{player['Player']} - {player['Projected Prop']} ({player['Odds']})")
-                    st.success(f"Added {player['Player']} - {player['Projected Prop']} to Bet Slip!")
-            st.markdown("---")
+# Bet Slip Page
+if page == "Bet Slip":
+    st.title("📌 Your Bet Slip")
+    if len(st.session_state.bet_slip) == 0:
+        st.write("No bets added yet. Go to the **Home** page to add bets.")
+    else:
+        st.write("### Your Selected Bets")
+        for bet in st.session_state.bet_slip:
+            st.write(f"✅ {bet}")
+        st.write("---")
+        bet_amount = st.number_input("Enter Bet Amount ($):", min_value=1, value=10)
+        if st.button("Calculate Potential Payout"):
+            st.success(f"Your potential payout: **${bet_amount * 2}** (Mock Calculation)")
+        if st.button("Clear Bet Slip"):
+            st.session_state.bet_slip = []
+            st.success("Bet slip cleared!")
 
-# Fantasy League Page - Display Matchup Properly
-if page == "Fantasy League":
-    st.title("📥 Fantasy League Matchup Details")
-    st.image("https://i.imgur.com/STUXtV3.png", width=150)  # Display logo again
-    matchup_data = st.session_state.get("matchup_data", {})
-    if matchup_data:
-        st.header(f"🏈 {matchup_data['team_1']} vs {matchup_data['team_2']}")
-        st.subheader(f"Projected Score: {matchup_data['team_1_score']} - {matchup_data['team_2_score']}")
-        
-        st.write("### Player Matchups & Live Scores")
-        for i in range(0, len(matchup_data.get("players", [])), 2):
-            col1, col2, col3 = st.columns([3, 1, 3])
-            with col1:
-                player1 = matchup_data["players"][i]
-                st.image(get_player_image(player1['Player']), width=100)
-                st.write(f"**{player1['Player']} ({player1['Position']})**")
-                st.write(f"Fantasy Points: {player1['Fantasy Points']}")
-            with col2:
-                st.write("VS")
-            with col3:
-                if i+1 < len(matchup_data["players"]):
-                    player2 = matchup_data["players"][i+1]
-                    st.image(get_player_image(player2['Player']), width=100)
-                    st.write(f"**{player2['Player']} ({player2['Position']})**")
-                    st.write(f"Fantasy Points: {player2['Fantasy Points']}")
+# Live Tracker Page
+if page == "Live Tracker":
+    st.title("📡 Live Fantasy Tracker")
+    st.write("Real-time player updates appear here!")
+
+    players = [player["Player"] for player in st.session_state.get("matchup_data", {}).get("players", [])]
+    events = [
+        "scores a touchdown!",
+        "rushes for 10 yards!",
+        "throws a deep pass!",
+        "makes a spectacular catch!",
+        "breaks a tackle for a huge gain!"
+    ]
+    
+    if st.button("Generate Live Update"):
+        if players:
+            update = f"{random.choice(players)} {random.choice(events)}"
+            st.session_state.live_updates.insert(0, update)
+        else:
+            update = "Waiting for matchup data..."
+            st.session_state.live_updates.insert(0, update)
+    
+    st.write("### Latest Updates:")
+    for update in st.session_state.live_updates[:10]:  # Show last 10 updates
+        st.write(f"- {update}")
